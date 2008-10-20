@@ -1,14 +1,13 @@
 #!/usr/bin/env perl
 package Path::Dispatcher;
 use Moose;
+use MooseX::AttributeHelpers;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
-use Path::Dispatcher::Stage;
 use Path::Dispatcher::Rule;
 use Path::Dispatcher::Dispatch;
 
-sub stage_class    { 'Path::Dispatcher::Stage' }
 sub dispatch_class { 'Path::Dispatcher::Dispatch' }
 
 has name => (
@@ -23,11 +22,16 @@ has name => (
     },
 );
 
-has stages => (
-    is         => 'rw',
-    isa        => 'ArrayRef[Path::Dispatcher::Stage]',
-    auto_deref => 1,
-    builder    => 'default_stages',
+has _rules => (
+    metaclass => 'Collection::Array',
+    is        => 'rw',
+    isa       => 'ArrayRef[Path::Dispatcher::Rule]',
+    init_args => 'rules',
+    default   => sub { [] },
+    provides  => {
+        push     => 'add_rule',
+        elements => 'rules',
+    },
 );
 
 has super_dispatcher => (
@@ -36,38 +40,15 @@ has super_dispatcher => (
     predicate => 'has_super_dispatcher',
 );
 
-sub default_stages {
-    my $self = shift;
-    my $stage_class = $self->stage_class;
-
-    my $before = $stage_class->new(name => 'on', qualifier => 'before');
-    my $on     = $stage_class->new(name => 'on');
-    my $after  = $stage_class->new(name => 'on', qualifier => 'after');
-
-    return [$before, $on, $after];
-}
-
-# ugh, we should probably use IxHash..
-sub stage {
-    my $self = shift;
-    my $name = shift;
-
-    for my $stage ($self->stages) {
-        return $stage if $stage->qualified_name eq $name;
-    }
-
-    return;
-}
-
 sub dispatch {
     my $self = shift;
     my $path = shift;
 
     my $dispatch = $self->dispatch_class->new;
 
-    for my $stage ($self->stages) {
-        $self->dispatch_stage(
-            stage    => $stage,
+    for my $rule ($self->rules) {
+        $self->dispatch_rule(
+            rule     => $rule,
             dispatch => $dispatch,
             path     => $path,
         );
@@ -79,31 +60,14 @@ sub dispatch {
     return $dispatch;
 }
 
-sub dispatch_stage {
-    my $self = shift;
-    my %args = @_;
-
-    my $stage = $args{stage};
-
-    for my $rule ($stage->rules) {
-        $self->dispatch_rule(
-            %args,
-            rule => $rule,
-        );
-    }
-}
-
 sub dispatch_rule {
     my $self = shift;
     my %args = @_;
 
-    my $result = $args{rule}->match($args{path})
+    my @matches = $args{rule}->match($args{path})
         or return 0;
 
-    $args{dispatch}->add_match(
-        %args,
-        result => $result,
-    );
+    $args{dispatch}->add_matches(@matches);
 
     return 1;
 }
@@ -149,21 +113,81 @@ __END__
 
 Path::Dispatcher - flexible dispatch
 
+=head1 SYNOPSIS
+
+    use Path::Dispatcher;
+    my $dispatcher = Path::Dispatcher->new;
+
+    $dispatcher->add_rule(
+        Path::Dispacher::Rule::Regex->new(
+            regex => qr{^/(foo)/},
+            block => sub { warn $1; }, # foo
+        )
+    );
+
+    $dispatcher->add_rule(
+        Path::Dispacher::Rule::Tokens->new(
+            tokens    => ['ticket', 'delete', qr/^\d+$/],
+            delimiter => '/',
+            block     => sub { delete_ticket($3) },
+        )
+    );
+
+    my $dispatch = $dispatcher->dispatch("/foo/bar");
+    die "404" unless $dispatch->has_matches;
+    $dispatch->run;
+
 =head1 DESCRIPTION
 
 We really like L<Jifty::Dispatcher> and wanted to use it for the command line.
 
-More documentation coming later, there's a lot here..
+The basic operation is that of dispatch. Dispatch takes a path and a list of
+rules, and it returns a list of matches. From there you can "run" the rules
+that matched. These phases are distinct so that, if you need to, you can
+inspect which rules were matched without ever running their codeblocks.
+
+=head1 ATTRIBUTES
+
+=head2 rules
+
+A list of L<Path::Dispatcher::Rule> objects.
+
+=head2 name
+
+A human-readable name; this will be used in the (currently nonexistent)
+debugging hooks.
+
+=head2 super_dispatcher
+
+Another Path::Dispatcher to defer to when no rules match in the current
+dispatcher. This is intended for "subclassing" dispatchers, such as when you
+have a framework dispatcher and an application dispatcher.
+
+WARNING: The super dispatcher feature is currently unstable. I'm still trying
+to figure out the right way to have them.
+
+=head1 METHODS
+
+=head2 add_rule
+
+Adds a L<Path::Dispatcher::Rule> to the end of this dispatcher's rule set.
+
+=head2 dispatch path -> dispatch
+
+Takes a string (the path) and returns a L<Path::Dispatcher::Dispatch> object
+representing a list of matches (L<Path::Dispatcher::Match> objects).
+
+=head2 run path, args
+
+Dispatches on the path and then invokes the C<run> method on the
+L<Path::Dispatcher::Dispatch> object, for when you don't need to inspect the
+dispatch.
 
 =head1 AUTHOR
 
 Shawn M Moore, C<< <sartak at bestpractical.com> >>
 
 =head1 BUGS
-
-C<after> substages are not yet run properly when primary stage is run.
-
-The order matches when a super dispatch is added B<will> change.
 
 Please report any bugs or feature requests to
 C<bug-path-dispatcher at rt.cpan.org>, or through the web interface at
