@@ -28,7 +28,6 @@ t/003-404.t
 t/005-multi-rule.t
 t/006-abort.t
 t/007-coderef-matcher.t
-t/008-super-dispatcher.t
 t/009-args.t
 t/010-return.t
 t/011-next-rule.t
