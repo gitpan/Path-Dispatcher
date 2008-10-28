@@ -2,7 +2,7 @@
 package Path::Dispatcher::Test::App;
 use strict;
 use warnings;
-use Path::Dispatcher::Test::Framework;
+use Path::Dispatcher::Test::Framework -base;
 
 before qr/foo/ => sub {
     push @main::calls, 'app before foo';
@@ -40,6 +40,12 @@ on qr/ar(g)s/ => sub {
     };
     next_rule;
 };
+
+__PACKAGE__->dispatcher->add_rule(
+    Path::Dispatcher::Rule::Dispatch->new(
+        dispatcher => Path::Dispatcher::Test::Framework->dispatcher,
+    )
+);
 
 1;
 

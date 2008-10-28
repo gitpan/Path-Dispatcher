@@ -13,6 +13,7 @@ lib/Path/Dispatcher/Dispatch.pm
 lib/Path/Dispatcher/Match.pm
 lib/Path/Dispatcher/Rule.pm
 lib/Path/Dispatcher/Rule/CodeRef.pm
+lib/Path/Dispatcher/Rule/Dispatch.pm
 lib/Path/Dispatcher/Rule/Regex.pm
 lib/Path/Dispatcher/Rule/Tokens.pm
 lib/Path/Dispatcher/Rule/Under.pm

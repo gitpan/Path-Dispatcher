@@ -23,6 +23,11 @@ sub import {
     my $self = shift;
     my $pkg  = caller;
 
+    my @args = grep { !/^-[bB]ase$/ } @_;
+
+    # just loading the class..
+    return if @args == @_;
+
     do {
         no strict 'refs';
         push @{ $pkg . '::ISA' }, $self;
@@ -30,7 +35,7 @@ sub import {
 
     local $CALLER = $pkg;
 
-    $exporter->($self, @_);
+    $exporter->($self, @args);
 }
 
 sub build_sugar {
@@ -41,11 +46,6 @@ sub build_sugar {
     my $dispatcher = Path::Dispatcher->new(
         name => $into,
     );
-
-    # if this is a subclass, then we want to set up a super dispatcher
-    if ($class ne __PACKAGE__) {
-        $dispatcher->super_dispatcher($class->dispatcher);
-    }
 
     return {
         dispatcher => sub { $dispatcher },
@@ -68,6 +68,16 @@ sub build_sugar {
                 if !$OUTERMOST_DISPATCHER;
 
             $OUTERMOST_DISPATCHER->run(@_);
+        },
+        rewrite => sub {
+            my ($from, $to) = @_;
+            my $rewrite = sub {
+                local $OUTERMOST_DISPATCHER = $dispatcher
+                    if !$OUTERMOST_DISPATCHER;
+                my $path = ref($to) eq 'CODE' ? $to->() : $to;
+                $OUTERMOST_DISPATCHER->run($path, @_);
+            };
+            $into->_add_rule('on', $from, $rewrite);
         },
         on => sub {
             $into->_add_rule('on', @_);
@@ -182,6 +192,8 @@ Path::Dispatcher::Declarative - sugary dispatcher
     on score => sub { show_score() };
     
     on ['wield', qr/^\w+$/] => sub { wield_weapon($2) };
+
+    rewrite qr/^inv/ => "display inventory";
 
     under display => sub {
         on inventory => sub { show_inventory() };
