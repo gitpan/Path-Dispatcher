@@ -3,6 +3,7 @@ abstract: flexible dispatch
 author: 
   - Shawn M Moore, C<< <sartak at bestpractical.com> >>
 build_requires: 
+  Test::Exception: 0
   Test::More: 0
 distribution_type: module
 generated_by: Module::Install version 0.70
@@ -19,4 +20,4 @@ requires:
   Moose: 0
   MooseX::AttributeHelpers: 0
   Sub::Exporter: 0
-version: 0.04
+version: 0.05

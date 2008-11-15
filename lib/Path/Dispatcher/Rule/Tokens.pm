@@ -13,24 +13,25 @@ extends 'Path::Dispatcher::Rule';
 #     - strings
 #     - regular expressions
 
-my $Str       = find_type_constraint('Str');
-my $RegexpRef = find_type_constraint('RegexpRef');
-my $ArrayRef  = find_type_constraint('ArrayRef');
+my $Str      = find_type_constraint('Str');
+my $Regex    = find_type_constraint('RegexpRef');
+my $ArrayRef = find_type_constraint('ArrayRef');
 
-subtype 'Path::Dispatcher::Token'
-     => as 'Defined'
-     => where { $Str->check($_) || $RegexpRef->check($_) };
-
-subtype 'Path::Dispatcher::TokenAlternation'
-     => as 'ArrayRef[Path::Dispatcher::Token]';
+my $Alternation;
+$Alternation = subtype as 'Defined'
+     => where {
+         return $Str->check($_) || $Regex->check($_) if ref($_) ne 'ARRAY';
+         $Alternation->check($_) or return for @$_;
+         1
+     };
 
 subtype 'Path::Dispatcher::Tokens'
-     => as 'ArrayRef[Path::Dispatcher::Token|Path::Dispatcher::TokenAlternation]';
+     => as 'ArrayRef'
+     => where { $Alternation->check($_) or return for @$_; 1 };
 
 has tokens => (
     is         => 'rw',
     isa        => 'Path::Dispatcher::Tokens',
-    isa        => 'ArrayRef',
     auto_deref => 1,
     required   => 1,
 );
@@ -39,6 +40,12 @@ has delimiter => (
     is      => 'rw',
     isa     => 'Str',
     default => ' ',
+);
+
+has case_sensitive => (
+    is      => 'rw',
+    isa     => 'Bool',
+    default => 1,
 );
 
 sub _match {
@@ -72,13 +79,15 @@ sub _match_token {
         }
     }
     elsif ($Str->check($expected)) {
+        ($got, $expected) = (lc $got, lc $expected) if !$self->case_sensitive;
         return $got eq $expected;
     }
-    elsif ($RegexpRef->check($expected)) {
+    elsif ($Regex->check($expected)) {
         return $got =~ $expected;
     }
-
-    return 0;
+    else {
+        die "Unexpected token '$expected'"; # the irony is not lost on me :)
+    }
 }
 
 sub tokenize {
@@ -146,6 +155,11 @@ path. In the future this may be extended to support having a regex delimiter.
 
 The default is a space, but if you're matching URLs you probably want to change
 this to a slash.
+
+=head2 case_sensitive
+
+Decide whether the rule matching is case sensitive. Default is 1, case
+sensitive matching.
 
 =cut
 

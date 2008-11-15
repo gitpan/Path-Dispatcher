@@ -13,37 +13,41 @@ has _matches => (
     provides  => {
         push     => 'add_match',
         elements => 'matches',
-        count    => 'has_matches',
+        count    => 'has_match',
+        first    => 'first_match',
     },
 );
 
-# alias add_matches -> add_match
+# aliases
 __PACKAGE__->meta->add_method(add_matches => __PACKAGE__->can('add_match'));
+__PACKAGE__->meta->add_method(has_matches => __PACKAGE__->can('has_match'));
 
 sub run {
     my $self = shift;
     my @args = @_;
     my @matches = $self->matches;
+    my @results;
 
     while (my $match = shift @matches) {
         eval {
             local $SIG{__DIE__} = 'DEFAULT';
 
-            $match->run(@args);
+            push @results, scalar $match->run(@args);
 
             die "Path::Dispatcher abort\n"
-                if $match->ends_dispatch($self);
+                if $match->ends_dispatch;
         };
 
         if ($@) {
-            return if $@ =~ /^Path::Dispatcher abort\n/;
+            last if $@ =~ /^Path::Dispatcher abort\n/;
             next if $@ =~ /^Path::Dispatcher next rule\n/;
 
             die $@;
         }
     }
 
-    return;
+    return @results if wantarray;
+    return $results[0];
 }
 
 __PACKAGE__->meta->make_immutable;
@@ -92,6 +96,10 @@ matched.
 =head2 run
 
 Executes matches until a match's C<ends_dispatch> returns true.
+
+Each match's L<Path::Dispatcher::Match/run> method is evaluated in scalar
+context. The return value of this method is a list of these scalars (or the
+first if called in scalar context).
 
 =cut
 

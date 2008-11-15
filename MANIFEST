@@ -12,6 +12,7 @@ lib/Path/Dispatcher/Declarative.pm
 lib/Path/Dispatcher/Dispatch.pm
 lib/Path/Dispatcher/Match.pm
 lib/Path/Dispatcher/Rule.pm
+lib/Path/Dispatcher/Rule/Always.pm
 lib/Path/Dispatcher/Rule/CodeRef.pm
 lib/Path/Dispatcher/Rule/Dispatch.pm
 lib/Path/Dispatcher/Rule/Regex.pm
@@ -25,6 +26,7 @@ t/000-compile.t
 t/001-api.t
 t/002-rule.t
 t/003-404.t
+t/004-run.t
 t/005-multi-rule.t
 t/006-abort.t
 t/007-coderef-matcher.t
@@ -40,5 +42,9 @@ t/100-declarative.t
 t/101-subclass.t
 t/102-abort.t
 t/103-input.t
-t/lib/Path/Dispatcher/Test/App.pm
-t/lib/Path/Dispatcher/Test/Framework.pm
+t/104-config.t
+t/105-always.t
+t/900-use-path-dispatcher.t
+t/901-return-values.t
+t/902-coderef.t
+t/903-weird-token.t

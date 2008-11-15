@@ -18,6 +18,7 @@ my $exporter = Sub::Exporter::build_exporter({
 });
 
 sub token_delimiter { ' ' }
+sub case_sensitive_tokens { undef }
 
 sub import {
     my $self = shift;
@@ -105,17 +106,34 @@ sub build_sugar {
 
             $into->_add_rule($under, @_);
         },
+        redispatch_to => sub {
+            my ($dispatcher) = @_;
+
+            # assume it's a declarative dispatcher
+            if (!ref($dispatcher)) {
+                $dispatcher = $dispatcher->dispatcher;
+            }
+
+            my $redispatch = Path::Dispatcher::Rule::Dispatch->new(
+                dispatcher => $dispatcher,
+            );
+
+            $into->_add_rule($redispatch);
+        },
         next_rule => sub { die "Path::Dispatcher next rule\n" },
         last_rule => sub { die "Path::Dispatcher abort\n" },
     };
 }
 
-my %rule_creator = (
+my %rule_creators = (
     ARRAY => sub {
         my ($self, $tokens, $block) = @_;
+        my $case_sensitive = $self->case_sensitive_tokens;
+
         Path::Dispatcher::Rule::Tokens->new(
             tokens => $tokens,
             delimiter => $self->token_delimiter,
+            defined $case_sensitive ? (case_sensitive => $case_sensitive) : (),
             $block ? (block => $block) : (),
         ),
     },
@@ -141,13 +159,23 @@ my %rule_creator = (
             $block ? (block => $block) : (),
         ),
     },
+    empty => sub {
+        my ($self, $undef, $block) = @_;
+        Path::Dispatcher::Rule::Always->new(
+            $block ? (block => $block) : (),
+        ),
+    },
 );
 
 sub _create_rule {
     my ($self, $stage, $matcher, $block) = @_;
 
-    my $rule_creator = $rule_creator{ ref $matcher }
-        or die "I don't know how to create a rule for type $matcher";
+    my $rule_creator;
+    $rule_creator   = $rule_creators{empty} if $matcher eq '';
+    $rule_creator ||= $rule_creators{ ref $matcher };
+
+    $rule_creator or die "I don't know how to create a rule for type $matcher";
+
     return $rule_creator->($self, $matcher, $block);
 }
 

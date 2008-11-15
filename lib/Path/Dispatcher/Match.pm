@@ -32,6 +32,14 @@ has set_number_vars => (
     default => sub { ref(shift->result) eq 'ARRAY' },
 );
 
+# If we're a before/after (qualified) rule, then yeah, we want to continue
+# dispatching. If we're an "on" (unqualified) rule, then no, you only get one.
+has ends_dispatch => (
+    is      => 'rw',
+    isa     => 'Bool',
+    default => 1,
+);
+
 sub run {
     my $self = shift;
     my @args = @_;
@@ -39,14 +47,13 @@ sub run {
     local $_ = $self->path;
 
     if ($self->set_number_vars) {
-        $self->run_with_number_vars(
+        return $self->run_with_number_vars(
             sub { $self->rule->run(@args) },
             @{ $self->result },
         );
     }
-    else {
-        $self->rule->run(@args);
-    }
+
+    return $self->rule->run(@args);
 }
 
 sub run_with_number_vars {
@@ -65,17 +72,9 @@ sub run_with_number_vars {
     # we need to do the match anyway, because we have to clear the number vars
     ($str, $re) = ("x", "x") if length($str) == 0;
     $str =~ $re
-        or die "Unable to match '$str' against a copy of itself!";
+        or die "Unable to match '$str' against a copy of itself ($re)!";
 
     $code->();
-}
-
-# If we're a before/after (qualified) rule, then yeah, we want to continue
-# dispatching. If we're an "on" (unqualified) rule, then no, you only get one.
-sub ends_dispatch {
-    my $self = shift;
-
-    return 1;
 }
 
 __PACKAGE__->meta->make_immutable;

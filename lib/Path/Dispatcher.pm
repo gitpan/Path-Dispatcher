@@ -3,7 +3,7 @@ package Path::Dispatcher;
 use Moose;
 use MooseX::AttributeHelpers;
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 use Path::Dispatcher::Rule;
 use Path::Dispatcher::Dispatch;
@@ -26,7 +26,7 @@ has _rules => (
     metaclass => 'Collection::Array',
     is        => 'rw',
     isa       => 'ArrayRef[Path::Dispatcher::Rule]',
-    init_args => 'rules',
+    init_arg  => 'rules',
     default   => sub { [] },
     provides  => {
         push     => 'add_rule',
@@ -68,9 +68,7 @@ sub run {
     my $path = shift;
     my $dispatch = $self->dispatch($path);
 
-    $dispatch->run(@_);
-
-    return;
+    return $dispatch->run(@_);
 }
 
 # We don't export anything, so if they request something, then try to error
@@ -158,6 +156,9 @@ representing a list of matches (L<Path::Dispatcher::Match> objects).
 Dispatches on the path and then invokes the C<run> method on the
 L<Path::Dispatcher::Dispatch> object, for when you don't need to inspect the
 dispatch.
+
+The args are passed down directly into each rule codeblock. No other args are
+given to the codeblock.
 
 =head1 AUTHOR
 

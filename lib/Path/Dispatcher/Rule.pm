@@ -18,8 +18,6 @@ has prefix => (
     default => 0,
 );
 
-sub _match { die "_match not implemented in " . (blessed($_[0]) || $_[0]) }
-
 sub match {
     my $self = shift;
     my $path = shift;
@@ -28,10 +26,6 @@ sub match {
     return unless $result;
 
     $leftover = '' if !defined($leftover);
-
-    # if we're not matching only a prefix then require the leftover to be empty
-    return if length($leftover)
-           && !$self->prefix;
 
     # make sure that the returned values are PLAIN STRINGS
     # later we will stick them into a regular expression to populate $1 etc
@@ -66,11 +60,12 @@ __PACKAGE__->meta->make_immutable;
 no Moose;
 
 # don't require others to load our subclasses explicitly
+require Path::Dispatcher::Rule::Always;
 require Path::Dispatcher::Rule::CodeRef;
+require Path::Dispatcher::Rule::Dispatch;
 require Path::Dispatcher::Rule::Regex;
 require Path::Dispatcher::Rule::Tokens;
 require Path::Dispatcher::Rule::Under;
-require Path::Dispatcher::Rule::Dispatch;
 
 1;
 

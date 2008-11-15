@@ -1,5 +1,28 @@
 Revision history for Path-Dispatcher
 
+0.05 Sat Nov 15 16:36:41 2008
+        Improve test coverage
+        New rule type "Always" which always matches.
+
+        Match:
+            ends_dispatch is now an attribute
+
+        Rule::Tokens:
+            Support for case insensitive matching
+            Fix for tokens' type constraint
+
+        Dispatcher:
+            Allow rules to be specified in the constructor (a typo prevented it)
+
+        Dispatch:
+            first_match, has_match methods which do what you'd expect
+            The run method will now collect return values and return them
+
+        Declarative:
+            redispatch_to sugar which adds a Dispatch rule
+            "on '' => sub" as a special case will match all paths
+
+
 0.04 Tue Oct 28 17:56:41 2008
         Dist fixes
 
