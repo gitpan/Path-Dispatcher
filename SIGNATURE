@@ -14,8 +14,8 @@ not run its Makefile.PL or Build.PL.
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-SHA1 bd4491f4f9963dad634db5c2b2f04c338cb1af71 Changes
-SHA1 0b0f9d8df16908b9d1a3962cf28751243b541a5d MANIFEST
+SHA1 44b8875099406cbc3210b184feff000c1fd1005c Changes
+SHA1 db26b9311a3e2a36fc0b743829ba8a0922083874 MANIFEST
 SHA1 223c780fe0c393f7d74e12d1aeb9040ca5ac00ee META.yml
 SHA1 70381273a9ba2c65483bedae4d87964955478720 Makefile.PL
 SHA1 8b836389e4bc170eb8d19b7296b2f4978ac36136 inc/Module/Install.pm
@@ -26,14 +26,15 @@ SHA1 da42b522e5a7ffbae0ceec900f3635ad9990c565 inc/Module/Install/Makefile.pm
 SHA1 ba005818ee9f97146bfa4e14e53c684e9e446902 inc/Module/Install/Metadata.pm
 SHA1 85e6b1cf5b7ca81bfb469a99389fa947d4b8a08e inc/Module/Install/Win32.pm
 SHA1 d32dff9f0d2f02023ca6d79a48d62fd855916351 inc/Module/Install/WriteAll.pm
-SHA1 01411c4888a9ec10036e02e653f8a884c99a2d48 lib/Path/Dispatcher.pm
-SHA1 702f37ff1f7cc94543b2204d2d951f4e8fa8a268 lib/Path/Dispatcher/Declarative.pm
+SHA1 2995fa429a7e295eb7c371c32118743527189a8f lib/Path/Dispatcher.pm
+SHA1 c275a6652932bf452954387b83e2c500df23ebf2 lib/Path/Dispatcher/Declarative.pm
 SHA1 37f9017876b4314a7f90733feedd3870122720eb lib/Path/Dispatcher/Dispatch.pm
 SHA1 f434a906ddb184c4d98c01d2c2a6f67b8941ed77 lib/Path/Dispatcher/Match.pm
-SHA1 84b70242e7efbfc047afd96a1075f2da2a44187a lib/Path/Dispatcher/Rule.pm
+SHA1 5334f4fdf5a288187eb6c676a24907dd61066c6d lib/Path/Dispatcher/Rule.pm
 SHA1 45c40f64dfd39514d3659279226b7caa2fa322bf lib/Path/Dispatcher/Rule/Always.pm
 SHA1 c6e54c07aa0834d0a866df5bd879d609bf90bce9 lib/Path/Dispatcher/Rule/CodeRef.pm
 SHA1 e224b3bf95fd46392f7d1f812e6f0700769e6281 lib/Path/Dispatcher/Rule/Dispatch.pm
+SHA1 d897ee2e434c962261a3d302d944c5ccf6189919 lib/Path/Dispatcher/Rule/Empty.pm
 SHA1 ed4e021aef9303da4d5d48187b39357232f7c5bc lib/Path/Dispatcher/Rule/Regex.pm
 SHA1 4f1402c4d6773f4008ccf74ace58497300472eb1 lib/Path/Dispatcher/Rule/Tokens.pm
 SHA1 c98044594ed94c9460819b74d0f0a930fe0c7f46 lib/Path/Dispatcher/Rule/Under.pm
@@ -58,7 +59,7 @@ SHA1 a3b7f3050b420a762a885b2eb9f8d604b7865010 t/101-subclass.t
 SHA1 a181545f6de1273bc05d365c416a5ba14fb47cd6 t/102-abort.t
 SHA1 357b3a5d929d27b46b49962d8c96853803180697 t/103-input.t
 SHA1 1bf2e1f566a1ec4b04a979c9d7c6448471e02d4e t/104-config.t
-SHA1 9fe98fe3f3409e3b0c487f25e703760b86e8f714 t/105-always.t
+SHA1 64fc6a1c6fbc05edc9b0ca808b7ef3b96499d8ca t/105-always.t
 SHA1 395a97d9d62ef5aea7b29c3a5be8ccf6aaa07d47 t/900-use-path-dispatcher.t
 SHA1 556420803c417e9f1b81d8056b5e39437024e357 t/901-return-values.t
 SHA1 5bb6423f0fb93a6d8372046c71311d10b6d4568e t/902-coderef.t
@@ -66,7 +67,7 @@ SHA1 d108c1bd7dcd1626ac8a2694dc257d7f367c0bf3 t/903-weird-token.t
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.7 (Darwin)
 
-iD8DBQFJH0EtsxfQtHhyRPoRAkJFAJ9RfjSmid14fBeSsRWJPH0VCoPj/ACdGa48
-YOcwKpe76hhcPSowKdL60AE=
-=La+v
+iD8DBQFJH39KsxfQtHhyRPoRAionAJoDQu0Hm2vRNNMgxlhbOYKnAYsfqwCfcLSt
+zk1ZeI6371lTBOrixloom20=
+=eLC7
 -----END PGP SIGNATURE-----

@@ -1,5 +1,11 @@
 Revision history for Path-Dispatcher
 
+0.06 Sat Nov 15 21:02:29 2008
+        New rule type "Empty" which matches only the empty path.
+
+        Declarative:
+            on '' now matches only the empty path.
+
 0.05 Sat Nov 15 16:36:41 2008
         Improve test coverage
         New rule type "Always" which always matches.
