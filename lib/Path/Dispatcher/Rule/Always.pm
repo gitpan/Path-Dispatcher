@@ -1,4 +1,3 @@
-#!/usr/bin/env perl
 package Path::Dispatcher::Rule::Always;
 use Moose;
 extends 'Path::Dispatcher::Rule';
@@ -6,7 +5,7 @@ extends 'Path::Dispatcher::Rule';
 sub _match {
     my $self = shift;
     my $path = shift;
-    return (1, $path);
+    return (1, $path->path);
 }
 
 __PACKAGE__->meta->make_immutable;
@@ -26,5 +25,4 @@ Rules of this class always match. If a prefix match is requested, the full path
 is returned as leftover.
 
 =cut
-
 

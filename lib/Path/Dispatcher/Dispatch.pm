@@ -1,4 +1,3 @@
-#!/usr/bin/env perl
 package Path::Dispatcher::Dispatch;
 use Moose;
 use MooseX::AttributeHelpers;
@@ -31,6 +30,9 @@ sub run {
     while (my $match = shift @matches) {
         eval {
             local $SIG{__DIE__} = 'DEFAULT';
+
+            $match->rule->trace(running => 1, match => $match)
+                if $ENV{PATH_DISPATCHER_TRACE};
 
             push @results, scalar $match->run(@args);
 

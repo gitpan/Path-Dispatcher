@@ -1,9 +1,10 @@
-#!/usr/bin/env perl
 package Path::Dispatcher::Rule::Under;
 use Moose;
 use Moose::Util::TypeConstraints;
 use MooseX::AttributeHelpers;
+
 extends 'Path::Dispatcher::Rule';
+with 'Path::Dispatcher::Role::Rules';
 
 subtype 'Path::Dispatcher::PrefixRule'
      => as 'Path::Dispatcher::Rule'
@@ -15,18 +16,6 @@ has predicate => (
     isa => 'Path::Dispatcher::PrefixRule',
 );
 
-has _rules => (
-    metaclass => 'Collection::Array',
-    is        => 'rw',
-    isa       => 'ArrayRef[Path::Dispatcher::Rule]',
-    init_arg  => 'rules',
-    default   => sub { [] },
-    provides  => {
-        push     => 'add_rule',
-        elements => 'rules',
-    },
-);
-
 sub match {
     my $self = shift;
     my $path = shift;
@@ -34,10 +23,12 @@ sub match {
     my $prefix_match = $self->predicate->match($path)
         or return;
 
-    my $suffix = $prefix_match->leftover;
+    my $new_path = $path->clone_path($prefix_match->leftover);
 
-    return grep { defined } map { $_->match($suffix) } $self->rules;
+    return grep { defined } map { $_->match($new_path) } $self->rules;
 }
+
+sub readable_attributes { shift->predicate->readable_attributes }
 
 __PACKAGE__->meta->make_immutable;
 no Moose;

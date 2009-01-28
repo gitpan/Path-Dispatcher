@@ -1,14 +1,17 @@
-#!/usr/bin/env perl
 package Path::Dispatcher;
 use Moose;
 use MooseX::AttributeHelpers;
 
-our $VERSION = '0.06';
+our $VERSION = '0.07';
 
 use Path::Dispatcher::Rule;
 use Path::Dispatcher::Dispatch;
+use Path::Dispatcher::Path;
 
-sub dispatch_class { 'Path::Dispatcher::Dispatch' }
+use constant dispatch_class => 'Path::Dispatcher::Dispatch';
+use constant path_class     => 'Path::Dispatcher::Path';
+
+with 'Path::Dispatcher::Role::Rules';
 
 has name => (
     is      => 'rw',
@@ -22,21 +25,16 @@ has name => (
     },
 );
 
-has _rules => (
-    metaclass => 'Collection::Array',
-    is        => 'rw',
-    isa       => 'ArrayRef[Path::Dispatcher::Rule]',
-    init_arg  => 'rules',
-    default   => sub { [] },
-    provides  => {
-        push     => 'add_rule',
-        elements => 'rules',
-    },
-);
-
 sub dispatch {
     my $self = shift;
     my $path = shift;
+
+    # Automatically box string paths
+    if (!ref($path)) {
+        $path = $self->path_class->new(
+            path => $path,
+        );
+    }
 
     my $dispatch = $self->dispatch_class->new;
 
@@ -55,17 +53,16 @@ sub dispatch_rule {
     my $self = shift;
     my %args = @_;
 
-    my @matches = $args{rule}->match($args{path})
-        or return 0;
-
+    my @matches = $args{rule}->match($args{path});
     $args{dispatch}->add_matches(@matches);
 
-    return 1;
+    return @matches;
 }
 
 sub run {
     my $self = shift;
     my $path = shift;
+
     my $dispatch = $self->dispatch($path);
 
     return $dispatch->run(@_);
@@ -78,7 +75,7 @@ sub import {
     my $package = caller;
 
     if (@_) {
-        Carp::croak "use Path::Dispatcher (@_) called by $package. Did you mean Path::Dispatcher::Declarative?";
+        Carp::croak "'use Path::Dispatcher (@_)' called by $package. Did you mean to use Path::Dispatcher::Declarative?";
     }
 }
 
@@ -127,7 +124,7 @@ that matched. These phases are distinct so that, if you need to, you can
 inspect which rules were matched without ever running their codeblocks.
 
 Most consumers would want to use L<Path::Dispatcher::Declarative> which gives
-you some sugar inspired by L<Jifty::Dispatcher>.
+you some sugar, inspired by L<Jifty::Dispatcher>.
 
 =head1 ATTRIBUTES
 
@@ -137,8 +134,8 @@ A list of L<Path::Dispatcher::Rule> objects.
 
 =head2 name
 
-A human-readable name; this will be used in the (currently nonexistent)
-debugging hooks.
+A human-readable name; this will be used in the debugging hooks. In
+L<Path::Dispatcher::Declarative>, this is the package name of the dispatcher.
 
 =head1 METHODS
 
@@ -177,6 +174,8 @@ L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Path-Dispatcher>.
 =item L<Jifty::Dispatcher>
 
 =item L<Catalyst::Dispatcher>
+
+=item L<HTTPx::Dispatcher>
 
 =item L<Mojolicious::Dispatcher>
 

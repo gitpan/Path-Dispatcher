@@ -1,10 +1,10 @@
-package Path::Dispatcher::Rule::Regex;
+package Path::Dispatcher::Rule::Eq;
 use Moose;
 extends 'Path::Dispatcher::Rule';
 
-has regex => (
+has string => (
     is       => 'rw',
-    isa      => 'RegexpRef',
+    isa      => 'Str',
     required => 1,
 );
 
@@ -12,20 +12,15 @@ sub _match {
     my $self = shift;
     my $path = shift;
 
-    return unless $path->path =~ $self->regex;
+    return $path->path eq $self->string unless $self->prefix;
 
-    my @matches = map { substr($path->path, $-[$_], $+[$_] - $-[$_]) } 1 .. $#-;
+    my $truncated = substr($path->path, 0, length($self->string));
+    return 0 unless $truncated eq $self->string;
 
-    # if $' is in the program at all, then it slows down every single regex
-    # we only want to include it if we have to
-    if ($self->prefix) {
-        return \@matches, eval q{$'};
-    }
-
-    return \@matches;
+    return (1, substr($path->path, length($self->string)));
 }
 
-sub readable_attributes { shift->regex }
+sub readable_attributes { q{"} . shift->string . q{"} }
 
 __PACKAGE__->meta->make_immutable;
 no Moose;

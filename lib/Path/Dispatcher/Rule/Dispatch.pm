@@ -1,4 +1,3 @@
-#!/usr/bin/env perl
 package Path::Dispatcher::Rule::Dispatch;
 use Moose;
 extends 'Path::Dispatcher::Rule';
@@ -16,6 +15,8 @@ sub match {
     my $dispatch = $self->dispatcher->dispatch($path);
     return $dispatch->matches;
 }
+
+sub readable_attributes { shift->dispatcher->name }
 
 __PACKAGE__->meta->make_immutable;
 no Moose;

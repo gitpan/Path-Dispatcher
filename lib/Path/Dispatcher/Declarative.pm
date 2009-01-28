@@ -1,4 +1,3 @@
-#!/usr/bin/env perl
 package Path::Dispatcher::Declarative;
 use strict;
 use warnings;
@@ -99,12 +98,12 @@ sub build_sugar {
                 predicate => $predicate,
             );
 
+            $into->_add_rule($under, @_);
+
             do {
                 local $UNDER_RULE = $under;
                 $rules->();
             };
-
-            $into->_add_rule($under, @_);
         },
         redispatch_to => sub {
             my ($dispatcher) = @_;
@@ -127,7 +126,7 @@ sub build_sugar {
 
 my %rule_creators = (
     ARRAY => sub {
-        my ($self, $tokens, $block) = @_;
+        my ($self, $stage, $tokens, $block) = @_;
         my $case_sensitive = $self->case_sensitive_tokens;
 
         Path::Dispatcher::Rule::Tokens->new(
@@ -137,30 +136,39 @@ my %rule_creators = (
             $block ? (block => $block) : (),
         ),
     },
+    HASH => sub {
+        my ($self, $stage, $metadata_matchers, $block) = @_;
+
+        if (keys %$metadata_matchers == 1) {
+            my ($field) = keys %$metadata_matchers;
+            my ($value) = values %$metadata_matchers;
+            my $matcher = $self->_create_rule($stage, $value);
+
+            return Path::Dispatcher::Rule::Metadata->new(
+                field   => $field,
+                matcher => $matcher,
+                $block ? (block => $block) : (),
+            );
+        }
+
+        die "Doesn't support multiple metadata rules yet";
+    },
     CODE => sub {
-        my ($self, $matcher, $block) = @_;
+        my ($self, $stage, $matcher, $block) = @_;
         Path::Dispatcher::Rule::CodeRef->new(
             matcher => $matcher,
             $block ? (block => $block) : (),
         ),
     },
     Regexp => sub {
-        my ($self, $regex, $block) = @_;
+        my ($self, $stage, $regex, $block) = @_;
         Path::Dispatcher::Rule::Regex->new(
             regex => $regex,
             $block ? (block => $block) : (),
         ),
     },
-    '' => sub {
-        my ($self, $tokens, $block) = @_;
-        Path::Dispatcher::Rule::Tokens->new(
-            tokens => [$tokens],
-            delimiter => $self->token_delimiter,
-            $block ? (block => $block) : (),
-        ),
-    },
     empty => sub {
-        my ($self, $undef, $block) = @_;
+        my ($self, $stage, $undef, $block) = @_;
         Path::Dispatcher::Rule::Empty->new(
             $block ? (block => $block) : (),
         ),
@@ -171,12 +179,21 @@ sub _create_rule {
     my ($self, $stage, $matcher, $block) = @_;
 
     my $rule_creator;
-    $rule_creator   = $rule_creators{empty} if $matcher eq '';
-    $rule_creator ||= $rule_creators{ ref $matcher };
+
+    if ($matcher eq '') {
+        $rule_creator = $rule_creators{empty};
+    }
+    elsif (!ref($matcher)) {
+        $rule_creator = $rule_creators{ARRAY};
+        $matcher = [$matcher];
+    }
+    else {
+        $rule_creator = $rule_creators{ ref $matcher };
+    }
 
     $rule_creator or die "I don't know how to create a rule for type $matcher";
 
-    return $rule_creator->($self, $matcher, $block);
+    return $rule_creator->($self, $stage, $matcher, $block);
 }
 
 sub _add_rule {
@@ -191,15 +208,27 @@ sub _add_rule {
         $rule = shift;
     }
 
+    # XXX: caller level should be closer to $Test::Builder::Level
+    my (undef, $file, $line) = caller(1);
+    my $rule_name = "$file:$line";
+
     if (!defined(wantarray)) {
         if ($UNDER_RULE) {
             $UNDER_RULE->add_rule($rule);
+
+            my $full_name = $UNDER_RULE->has_name
+                          ? "(" . $UNDER_RULE->name . " - rule $rule_name)"
+                          : "(anonymous Under - rule $rule_name)";
+
+            $rule->name($full_name);
         }
         else {
             $self->dispatcher->add_rule($rule);
+            $rule->name("(" . $self->dispatcher->name . " - rule $rule_name)");
         }
     }
     else {
+        $rule->name($rule_name);
         return $rule, @_;
     }
 }
@@ -233,6 +262,8 @@ Path::Dispatcher::Declarative - sugary dispatcher
 
 =head1 DESCRIPTION
 
+L<Jifty::Dispatcher> rocks!
+
 =head1 KEYWORDS
 
 =head2 dispatcher -> Dispatcher
@@ -262,11 +293,11 @@ Adds a rule to the dispatcher for the given path. The path may be:
 =item a string
 
 This is taken to mean a single token; creates an
-L<Path::Dispatcher::Rule::Token> rule.
+L<Path::Dispatcher::Rule::Tokens> rule.
 
 =item an array reference
 
-This is creates a L<Path::Dispatcher::Rule::Token> rule.
+This is creates a L<Path::Dispatcher::Rule::Tokens> rule.
 
 =item a regular expression
 

@@ -1,4 +1,3 @@
-#!/usr/bin/env perl
 package Path::Dispatcher::Rule::CodeRef;
 use Moose;
 extends 'Path::Dispatcher::Rule';
@@ -11,9 +10,19 @@ has matcher => (
 
 sub _match {
     my $self = shift;
-    local $_ = shift; # path
+    my $path = shift;
 
-    return $self->matcher->($_);
+    local $_ = $path;
+    return $self->matcher->($path);
+}
+
+sub readable_attributes {
+    return if $ENV{'PATH_DISPATCHER_TRACE'} < 10;
+
+    my $self = shift;
+
+    require B::Deparse;
+    return B::Deparse->new->coderef2text($self->matcher);
 }
 
 __PACKAGE__->meta->make_immutable;
@@ -54,7 +63,8 @@ necessary!
 A coderef that returns C<undef> if there's no match, otherwise a list of
 strings (the results).
 
-The coderef receives the path as both its one argument and C<$_>.
+The coderef receives the path object as its argument, and the path string as
+C<$_>.
 
 =cut
 
