@@ -1,7 +1,6 @@
 package Path::Dispatcher::Rule::Under;
-use Moose;
-use Moose::Util::TypeConstraints;
-use MooseX::AttributeHelpers;
+use Any::Moose;
+use Any::Moose '::Util::TypeConstraints';
 
 extends 'Path::Dispatcher::Rule';
 with 'Path::Dispatcher::Role::Rules';
@@ -31,8 +30,7 @@ sub match {
 sub readable_attributes { shift->predicate->readable_attributes }
 
 __PACKAGE__->meta->make_immutable;
-no Moose;
-no Moose::Util::TypeConstraints;
+no Any::Moose;
 
 1;
 

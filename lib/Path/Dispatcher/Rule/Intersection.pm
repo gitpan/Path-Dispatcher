@@ -1,6 +1,5 @@
 package Path::Dispatcher::Rule::Intersection;
-use Moose;
-use MooseX::AttributeHelpers;
+use Any::Moose;
 extends 'Path::Dispatcher::Rule';
 
 with 'Path::Dispatcher::Role::Rules';
@@ -17,7 +16,7 @@ sub _match {
 }
 
 __PACKAGE__->meta->make_immutable;
-no Moose;
+no Any::Moose;
 
 1;
 

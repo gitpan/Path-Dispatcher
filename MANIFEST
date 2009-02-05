@@ -59,4 +59,3 @@ t/200-under-next_rule.t
 t/900-use-path-dispatcher.t
 t/901-return-values.t
 t/902-coderef.t
-t/903-weird-token.t

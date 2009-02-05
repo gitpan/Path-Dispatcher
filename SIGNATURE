@@ -15,10 +15,10 @@ not run its Makefile.PL or Build.PL.
 Hash: SHA1
 
 SHA1 cd9ee9ea5d77c27a0388ad66280d11e0e4dc8c56 .prove
-SHA1 ea4354daa25a86c5e5edd283f568fef1e076af3b Changes
-SHA1 43cafe14aa3f824cde840b3e2a780ccc0416dc27 MANIFEST
-SHA1 d3f4cc5728d5815f3ad6dfd1f08d9f128d231b58 META.yml
-SHA1 70381273a9ba2c65483bedae4d87964955478720 Makefile.PL
+SHA1 b5a39cdb24345f6f9f6d376c981fa55f05153f0b Changes
+SHA1 b407fdadc1368b97aa3679efa588d190d89cfa31 MANIFEST
+SHA1 d981b3bd655dca3fd393671c7557c2bfd04ea544 META.yml
+SHA1 939b2ce4289786545524f8174c6d97f8d513f38b Makefile.PL
 SHA1 8b836389e4bc170eb8d19b7296b2f4978ac36136 inc/Module/Install.pm
 SHA1 85b32a1d5f215d99f411c3dd6113b537fcd5c57d inc/Module/Install/Base.pm
 SHA1 fde745e180861c7c0ba3ee5a767cafdbdb1d3ebd inc/Module/Install/Can.pm
@@ -27,23 +27,23 @@ SHA1 da42b522e5a7ffbae0ceec900f3635ad9990c565 inc/Module/Install/Makefile.pm
 SHA1 ba005818ee9f97146bfa4e14e53c684e9e446902 inc/Module/Install/Metadata.pm
 SHA1 85e6b1cf5b7ca81bfb469a99389fa947d4b8a08e inc/Module/Install/Win32.pm
 SHA1 d32dff9f0d2f02023ca6d79a48d62fd855916351 inc/Module/Install/WriteAll.pm
-SHA1 46a988a65a3db04218cb44a5639984b16f9bfaa1 lib/Path/Dispatcher.pm
+SHA1 55dc1af18b334983b9114fead3bdea3eb029ac0c lib/Path/Dispatcher.pm
 SHA1 34541afd248676bc8448a67e2fc4e1ced4f4f979 lib/Path/Dispatcher/Declarative.pm
-SHA1 2eb15a479c339a6d83c88c231cee22f41b27e5c7 lib/Path/Dispatcher/Dispatch.pm
-SHA1 d1fd6dc705a37c0cc23437b3af7c28f129c8107d lib/Path/Dispatcher/Match.pm
-SHA1 24929450c7dac3fc9adec2b3b6963f9517e50095 lib/Path/Dispatcher/Path.pm
-SHA1 d64c86c8f0e2b6dd0467ca6daaeec9729859e8c0 lib/Path/Dispatcher/Role/Rules.pm
-SHA1 1c796fdda4176ffb18178a3908beb421c7d1de8c lib/Path/Dispatcher/Rule.pm
-SHA1 40ed15de5f3351d1d110746614cca6faa3dc5957 lib/Path/Dispatcher/Rule/Always.pm
-SHA1 ebb11e609ac08482276ffe01b0ffc633ebb28593 lib/Path/Dispatcher/Rule/CodeRef.pm
-SHA1 a17d06916bcee0a0b739d83c0fcf2281e4ba16de lib/Path/Dispatcher/Rule/Dispatch.pm
-SHA1 175b87b2dea1276a07bbcbfc19c39da7815f9439 lib/Path/Dispatcher/Rule/Empty.pm
-SHA1 6e12eef926ac84fc04106d67ba09fbb87ac90922 lib/Path/Dispatcher/Rule/Eq.pm
-SHA1 a0e10ce2893236c189079d2a02672e37389cd3d5 lib/Path/Dispatcher/Rule/Intersection.pm
-SHA1 32e62e83dff7bcdfb75066342ca32d796ff3558f lib/Path/Dispatcher/Rule/Metadata.pm
-SHA1 208ffc5365f0fe1e8d21789eb8ad3d9cd8f8ba6a lib/Path/Dispatcher/Rule/Regex.pm
-SHA1 5e75af596a225cfb7a1c7acc8e630bda6f0cf8cd lib/Path/Dispatcher/Rule/Tokens.pm
-SHA1 56b61509d77060d85940c5b59f73f1e3a716f7df lib/Path/Dispatcher/Rule/Under.pm
+SHA1 66c63f76f76f413165eb392f24247707016c4ce1 lib/Path/Dispatcher/Dispatch.pm
+SHA1 e021b51299cf84bd4608d06a880bf61d69b8b80e lib/Path/Dispatcher/Match.pm
+SHA1 af9eb32ee4b493755b988b72744094df2bffb2ac lib/Path/Dispatcher/Path.pm
+SHA1 e05447d3bf3177b5b1066ce3c1ad1327bd0ad2a2 lib/Path/Dispatcher/Role/Rules.pm
+SHA1 cce954affa27900cb0a026ff73a01b41c38189cc lib/Path/Dispatcher/Rule.pm
+SHA1 fe6b2cbf7e8d9e95b47823d0b9d1c1b8ab9aa5f2 lib/Path/Dispatcher/Rule/Always.pm
+SHA1 01fe4ef8af8d3d21fdabbf4a61efbb5aeb25eac7 lib/Path/Dispatcher/Rule/CodeRef.pm
+SHA1 55d82f020f59f64ef05c97e3327a749011400514 lib/Path/Dispatcher/Rule/Dispatch.pm
+SHA1 ab329c695bf2227809eeffdb7cef094d299a3869 lib/Path/Dispatcher/Rule/Empty.pm
+SHA1 2407e81bf34431a8fbde92d364430785ab343c38 lib/Path/Dispatcher/Rule/Eq.pm
+SHA1 7305b33a5f872361fec0ba6ecb68d0c395ea5dab lib/Path/Dispatcher/Rule/Intersection.pm
+SHA1 f9fba11061892b80541d3c92db2e037c68c48e15 lib/Path/Dispatcher/Rule/Metadata.pm
+SHA1 4284bd1ac419b97b94247dbab12c6c591fdb7730 lib/Path/Dispatcher/Rule/Regex.pm
+SHA1 cab648bb054edcbac1c1f35092b30743d9cc1fa8 lib/Path/Dispatcher/Rule/Tokens.pm
+SHA1 d5da6d868e1b090d66d6aa19fb714f4499628046 lib/Path/Dispatcher/Rule/Under.pm
 SHA1 5c210a1bf9cc217494c3d18ff59e7a5abc1d3f46 t/000-compile.t
 SHA1 51744d3f1fb2b422e88ddb113cfba3414f5bcb50 t/001-api.t
 SHA1 67719d64ab036b20d5efbfc1849ee3bd63423635 t/002-rule.t
@@ -55,7 +55,7 @@ SHA1 5e0d5c24f2bb70a46c48ad991f8f59af4e1fda4e t/007-coderef-matcher.t
 SHA1 be8e2dbe2154d5a9b03f60670a4bf9f693799170 t/009-args.t
 SHA1 a146b0fc484b7a98d96705114a66d6eae715744d t/010-return.t
 SHA1 1cbc045b96d86dfa9dc70d3927e17885d3efdc36 t/011-next-rule.t
-SHA1 6431fe2ebcc326ee2cee6c5b00d06eaff6d9a7f6 t/012-under.t
+SHA1 8dbf03a924ca20c55bd80d1902cd572d3a81c68a t/012-under.t
 SHA1 d3c011ee8cefe99ad252451d3128ab11dc69a28a t/013-tokens.t
 SHA1 2912f729fa5824bf7b072d78156786dada4ee50a t/014-tokens-prefix.t
 SHA1 dff1932ccecb86fa55abbda78d2042fbfefebd59 t/015-regex-prefix.t
@@ -74,11 +74,10 @@ SHA1 015c4b0f19a7a6cac9afb5308d1db921d61b8108 t/200-under-next_rule.t
 SHA1 6f2f0e4524d51fb0ee241c452cb886f9c35eb2f5 t/900-use-path-dispatcher.t
 SHA1 556420803c417e9f1b81d8056b5e39437024e357 t/901-return-values.t
 SHA1 fab6e8bc2074e6ecef6e89bb9382bb2606d5cc0f t/902-coderef.t
-SHA1 31736ae4dbade779ce0c21761a36a9131fc2bcc7 t/903-weird-token.t
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.7 (Darwin)
 
-iD8DBQFJf/5AsxfQtHhyRPoRArKkAJ0e2weoGebpFdh7OUT71RN5OgNApACffa7B
-thyH/DFAM6T+NWiUbS0te2A=
-=vbUi
+iD8DBQFJix8fsxfQtHhyRPoRAjXDAJ91ydSWqT5Z0XTt7Lmi5H19bo/zqgCfZ1BZ
+1seWHLMa86hY7LQSu4uaSNw=
+=pbES
 -----END PGP SIGNATURE-----

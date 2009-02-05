@@ -1,8 +1,7 @@
 package Path::Dispatcher;
-use Moose;
-use MooseX::AttributeHelpers;
+use Any::Moose;
 
-our $VERSION = '0.07';
+our $VERSION = '0.08';
 
 use Path::Dispatcher::Rule;
 use Path::Dispatcher::Dispatch;
@@ -80,7 +79,7 @@ sub import {
 }
 
 __PACKAGE__->meta->make_immutable;
-no Moose;
+no Any::Moose;
 
 1;
 
