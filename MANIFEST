@@ -1,4 +1,4 @@
-.prove
+.gitignore
 Changes
 inc/Module/Install.pm
 inc/Module/Install/Base.pm
@@ -9,6 +9,8 @@ inc/Module/Install/Metadata.pm
 inc/Module/Install/Win32.pm
 inc/Module/Install/WriteAll.pm
 lib/Path/Dispatcher.pm
+lib/Path/Dispatcher/Builder.pm
+lib/Path/Dispatcher/Cookbook.pod
 lib/Path/Dispatcher/Declarative.pm
 lib/Path/Dispatcher/Dispatch.pm
 lib/Path/Dispatcher/Match.pm
@@ -16,6 +18,7 @@ lib/Path/Dispatcher/Path.pm
 lib/Path/Dispatcher/Role/Rules.pm
 lib/Path/Dispatcher/Rule.pm
 lib/Path/Dispatcher/Rule/Always.pm
+lib/Path/Dispatcher/Rule/Chain.pm
 lib/Path/Dispatcher/Rule/CodeRef.pm
 lib/Path/Dispatcher/Rule/Dispatch.pm
 lib/Path/Dispatcher/Rule/Empty.pm
@@ -27,7 +30,6 @@ lib/Path/Dispatcher/Rule/Tokens.pm
 lib/Path/Dispatcher/Rule/Under.pm
 Makefile.PL
 MANIFEST			This list of files
-META.yml
 SIGNATURE
 t/000-compile.t
 t/001-api.t
@@ -48,6 +50,8 @@ t/016-more-under.t
 t/017-intersection.t
 t/018-metadata.t
 t/019-intersection-metadata.t
+t/020-chain.t
+t/021-declarative-defaults.t
 t/100-declarative.t
 t/101-subclass.t
 t/102-abort.t
@@ -56,6 +60,8 @@ t/104-config.t
 t/105-empty.t
 t/106-metadata.t
 t/200-under-next_rule.t
+t/800-cb-slash-path-delimiter.t
+t/801-cb-chaining.t
 t/900-use-path-dispatcher.t
 t/901-return-values.t
 t/902-coderef.t

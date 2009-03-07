@@ -1,7 +1,7 @@
 package Path::Dispatcher;
 use Any::Moose;
 
-our $VERSION = '0.09';
+our $VERSION = '0.10';
 
 use Path::Dispatcher::Rule;
 use Path::Dispatcher::Dispatch;
@@ -28,8 +28,8 @@ sub dispatch {
     my $self = shift;
     my $path = shift;
 
-    # Automatically box string paths
-    if (!ref($path)) {
+    # Automatically box paths
+    unless (blessed($path) && $path->isa('Path::Dispatcher::Path')) {
         $path = $self->path_class->new(
             path => $path,
         );
@@ -53,6 +53,10 @@ sub dispatch_rule {
     my %args = @_;
 
     my @matches = $args{rule}->match($args{path});
+
+    # Support ::Chain here? Probably not. As ::Chain doesn't make sense unless it is within an ::Under
+#    return if $matches[-1]->rule->isa('Path::Dispatcher::Rule::Chain'); 
+    
     $args{dispatch}->add_matches(@matches);
 
     return @matches;
@@ -87,7 +91,7 @@ __END__
 
 =head1 NAME
 
-Path::Dispatcher - flexible dispatch
+Path::Dispatcher - flexible and extensible dispatch
 
 =head1 SYNOPSIS
 
@@ -184,7 +188,7 @@ L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Path-Dispatcher>.
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2008 Best Practical Solutions.
+Copyright 2008-2009 Best Practical Solutions.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.

@@ -2,12 +2,13 @@ package Path::Dispatcher::Declarative;
 use strict;
 use warnings;
 use Path::Dispatcher;
-
+use Path::Dispatcher::Builder;
 use Sub::Exporter;
 
+use constant dispatcher_class => 'Path::Dispatcher';
+use constant builder_class => 'Path::Dispatcher::Builder';
+
 our $CALLER; # Sub::Exporter doesn't make this available
-our $OUTERMOST_DISPATCHER;
-our $UNDER_RULE;
 
 my $exporter = Sub::Exporter::build_exporter({
     into_level => 1,
@@ -16,14 +17,11 @@ my $exporter = Sub::Exporter::build_exporter({
     },
 });
 
-sub token_delimiter { ' ' }
-sub case_sensitive_tokens { undef }
-
 sub import {
     my $self = shift;
     my $pkg  = caller;
 
-    my @args = grep { !/^-[bB]ase$/ } @_;
+    my @args = grep { !/^-base$/i } @_;
 
     # just loading the class..
     return if @args == @_;
@@ -43,195 +41,50 @@ sub build_sugar {
 
     my $into = $CALLER;
 
-    my $dispatcher = Path::Dispatcher->new(
-        name => $into,
+    $class->populate_defaults($arg);
+
+    my $dispatcher = $class->dispatcher_class->new(name => $into);
+
+    my $builder = $class->builder_class->new(
+        dispatcher => $dispatcher,
+        %$arg,
     );
 
     return {
-        dispatcher => sub { $dispatcher },
-        dispatch   => sub {
-            # if caller is $into, then this function is being used as sugar
-            # otherwise, it's probably a method call, so discard the invocant
-            shift if caller ne $into;
+        dispatcher    => sub { $builder->dispatcher },
+        rewrite       => sub { $builder->rewrite(@_) },
+        on            => sub { $builder->on(@_) },
+        under         => sub { $builder->under(@_) },
+        redispatch_to => sub { $builder->redispatch_to(@_) },
+        next_rule     => sub { $builder->next_rule(@_) },
+        last_rule     => sub { $builder->last_rule(@_) },
 
-            local $OUTERMOST_DISPATCHER = $dispatcher
-                if !$OUTERMOST_DISPATCHER;
+        then  => sub (&) { $builder->then(@_) },
+        chain => sub (&) { $builder->chain(@_) },
 
-            $OUTERMOST_DISPATCHER->dispatch(@_);
-        },
-        run => sub {
-            # if caller is $into, then this function is being used as sugar
-            # otherwise, it's probably a method call, so discard the invocant
-            shift if caller ne $into;
-
-            local $OUTERMOST_DISPATCHER = $dispatcher
-                if !$OUTERMOST_DISPATCHER;
-
-            $OUTERMOST_DISPATCHER->run(@_);
-        },
-        rewrite => sub {
-            my ($from, $to) = @_;
-            my $rewrite = sub {
-                local $OUTERMOST_DISPATCHER = $dispatcher
-                    if !$OUTERMOST_DISPATCHER;
-                my $path = ref($to) eq 'CODE' ? $to->() : $to;
-                $OUTERMOST_DISPATCHER->run($path, @_);
-            };
-            $into->_add_rule('on', $from, $rewrite);
-        },
-        on => sub {
-            $into->_add_rule('on', @_);
-        },
-        before => sub {
-            $into->_add_rule('before_on', @_);
-        },
-        after => sub {
-            $into->_add_rule('after_on', @_);
-        },
-        under => sub {
-            my ($matcher, $rules) = @_;
-
-            my $predicate = $into->_create_rule('on', $matcher);
-            $predicate->prefix(1);
-
-            my $under = Path::Dispatcher::Rule::Under->new(
-                predicate => $predicate,
-            );
-
-            $into->_add_rule($under, @_);
-
-            do {
-                local $UNDER_RULE = $under;
-                $rules->();
-            };
-        },
-        redispatch_to => sub {
-            my ($dispatcher) = @_;
-
-            # assume it's a declarative dispatcher
-            if (!ref($dispatcher)) {
-                $dispatcher = $dispatcher->dispatcher;
-            }
-
-            my $redispatch = Path::Dispatcher::Rule::Dispatch->new(
-                dispatcher => $dispatcher,
-            );
-
-            $into->_add_rule($redispatch);
-        },
-        next_rule => sub { die "Path::Dispatcher next rule\n" },
-        last_rule => sub { die "Path::Dispatcher abort\n" },
+        # NOTE on shift if $into: if caller is $into, then this function is
+        # being used as sugar otherwise, it's probably a method call, so
+        # discard the invocant
+        dispatch => sub { shift if caller ne $into; $builder->dispatch(@_) },
+        run      => sub { shift if caller ne $into; $builder->run(@_) },
     };
 }
 
-my %rule_creators = (
-    ARRAY => sub {
-        my ($self, $stage, $tokens, $block) = @_;
-        my $case_sensitive = $self->case_sensitive_tokens;
+sub populate_defaults {
+    my $class = shift;
+    my $arg  = shift;
 
-        Path::Dispatcher::Rule::Tokens->new(
-            tokens => $tokens,
-            delimiter => $self->token_delimiter,
-            defined $case_sensitive ? (case_sensitive => $case_sensitive) : (),
-            $block ? (block => $block) : (),
-        ),
-    },
-    HASH => sub {
-        my ($self, $stage, $metadata_matchers, $block) = @_;
+    for my $option ('token_delimiter', 'case_sensitive_tokens') {
+        next if exists $arg->{$option};
+        next unless $class->can($option);
 
-        if (keys %$metadata_matchers == 1) {
-            my ($field) = keys %$metadata_matchers;
-            my ($value) = values %$metadata_matchers;
-            my $matcher = $self->_create_rule($stage, $value);
+        my $default = $class->$option;
+        next unless defined $default; # use the builder's default
 
-            return Path::Dispatcher::Rule::Metadata->new(
-                field   => $field,
-                matcher => $matcher,
-                $block ? (block => $block) : (),
-            );
-        }
-
-        die "Doesn't support multiple metadata rules yet";
-    },
-    CODE => sub {
-        my ($self, $stage, $matcher, $block) = @_;
-        Path::Dispatcher::Rule::CodeRef->new(
-            matcher => $matcher,
-            $block ? (block => $block) : (),
-        ),
-    },
-    Regexp => sub {
-        my ($self, $stage, $regex, $block) = @_;
-        Path::Dispatcher::Rule::Regex->new(
-            regex => $regex,
-            $block ? (block => $block) : (),
-        ),
-    },
-    empty => sub {
-        my ($self, $stage, $undef, $block) = @_;
-        Path::Dispatcher::Rule::Empty->new(
-            $block ? (block => $block) : (),
-        ),
-    },
-);
-
-sub _create_rule {
-    my ($self, $stage, $matcher, $block) = @_;
-
-    my $rule_creator;
-
-    if ($matcher eq '') {
-        $rule_creator = $rule_creators{empty};
-    }
-    elsif (!ref($matcher)) {
-        $rule_creator = $rule_creators{ARRAY};
-        $matcher = [$matcher];
-    }
-    else {
-        $rule_creator = $rule_creators{ ref $matcher };
-    }
-
-    $rule_creator or die "I don't know how to create a rule for type $matcher";
-
-    return $rule_creator->($self, $stage, $matcher, $block);
-}
-
-sub _add_rule {
-    my $self = shift;
-    my $rule;
-
-    if (!ref($_[0])) {
-        my ($stage, $matcher, $block) = splice @_, 0, 3;
-        $rule = $self->_create_rule($stage, $matcher, $block);
-    }
-    else {
-        $rule = shift;
-    }
-
-    # XXX: caller level should be closer to $Test::Builder::Level
-    my (undef, $file, $line) = caller(1);
-    my $rule_name = "$file:$line";
-
-    if (!defined(wantarray)) {
-        if ($UNDER_RULE) {
-            $UNDER_RULE->add_rule($rule);
-
-            my $full_name = $UNDER_RULE->has_name
-                          ? "(" . $UNDER_RULE->name . " - rule $rule_name)"
-                          : "(anonymous Under - rule $rule_name)";
-
-            $rule->name($full_name);
-        }
-        else {
-            $self->dispatcher->add_rule($rule);
-            $rule->name("(" . $self->dispatcher->name . " - rule $rule_name)");
-        }
-    }
-    else {
-        $rule->name($rule_name);
-        return $rule, @_;
+        $arg->{$option} = $class->$option;
     }
 }
+
 
 1;
 
@@ -244,7 +97,7 @@ Path::Dispatcher::Declarative - sugary dispatcher
 =head1 SYNOPSIS
 
     package MyApp::Dispatcher;
-    use Path::Dispatcher::Declarative;
+    use Path::Dispatcher::Declarative -base;
 
     on score => sub { show_score() };
     
@@ -312,7 +165,31 @@ This is creates a L<Path::Dispatcher::Rule::CodeRef> rule.
 =head2 under path => sub {}
 
 Creates a L<Path::Dispatcher::Rule::Under> rule. The contents of the coderef
-should be other L</on> and C<under> calls.
+should be nothing other L</on> and C<under> calls.
+
+=head2 then sub { }
+
+Creates a L<Path::Dispatcher::Rule::Always> rule that will continue on to the
+next rule via C<next_rule>
+
+The only argument is a coderef that processes normally (like L<on>).
+
+NOTE: You *can* avoid running a following rule by using C<last_rule>.
+
+An example:
+
+    under show => sub {
+        then {
+            print "Displaying ";
+        };
+        on inventory => sub {
+            print "inventory:\n";
+            ...
+        };
+        on score => sub {
+            print "score:\n";
+            ...
+        };
 
 =cut
 
