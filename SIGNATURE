@@ -14,8 +14,8 @@ not run its Makefile.PL or Build.PL.
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-SHA1 7e9b6b6e45ae1e19cdf68f8182ea904ee7495d61 .gitignore
-SHA1 9ca3702c7fb1e79a0b7ed7c1d2d8271e50b86468 Changes
+SHA1 3292a96c6b9fedcdcdc1afb3bf7522f78a3f239f .gitignore
+SHA1 cd6e77cfca174ea39e252bd08e849ed5c1a88586 Changes
 SHA1 22c5cb4f592d1a6f1189936d139e7cc33e1b98ee MANIFEST
 SHA1 939b2ce4289786545524f8174c6d97f8d513f38b Makefile.PL
 SHA1 8b836389e4bc170eb8d19b7296b2f4978ac36136 inc/Module/Install.pm
@@ -26,15 +26,15 @@ SHA1 da42b522e5a7ffbae0ceec900f3635ad9990c565 inc/Module/Install/Makefile.pm
 SHA1 ba005818ee9f97146bfa4e14e53c684e9e446902 inc/Module/Install/Metadata.pm
 SHA1 85e6b1cf5b7ca81bfb469a99389fa947d4b8a08e inc/Module/Install/Win32.pm
 SHA1 d32dff9f0d2f02023ca6d79a48d62fd855916351 inc/Module/Install/WriteAll.pm
-SHA1 cd297fd7cff7c39865a27d866316cea4f6c3113c lib/Path/Dispatcher.pm
+SHA1 9256f5e92607b0611a37f56a6023345920593929 lib/Path/Dispatcher.pm
 SHA1 b93f1c2ecfa50120657b0bc7ecbed9ac46a655c7 lib/Path/Dispatcher/Builder.pm
-SHA1 dd2614a7ba84dfa22664eaa95f03193747eff7f7 lib/Path/Dispatcher/Cookbook.pod
+SHA1 8c55d80f9ed9ba211a6d48b63828df9ed428536b lib/Path/Dispatcher/Cookbook.pod
 SHA1 a13f4c5d64fff15e1f01a684ce26c7d94463bfaf lib/Path/Dispatcher/Declarative.pm
-SHA1 9e5f03f1f9e8f72b570f9c4b163329830d20193b lib/Path/Dispatcher/Dispatch.pm
+SHA1 d9aee878f8401658cd9e4d0f29190f13560874ec lib/Path/Dispatcher/Dispatch.pm
 SHA1 e7565c8228ffd9ea41d97d2c1fa2e2e9b4a60f38 lib/Path/Dispatcher/Match.pm
-SHA1 640d66c420210eb04f00210cc82f334e203dd64d lib/Path/Dispatcher/Path.pm
+SHA1 0ae2c3bff5faf7b2b6211de569b08b13d8e0272e lib/Path/Dispatcher/Path.pm
 SHA1 6b5468717b63076f55d4f635d1b40eaf69ff41c6 lib/Path/Dispatcher/Role/Rules.pm
-SHA1 af1f65a9e6710aa297452148189f928bd2a5a909 lib/Path/Dispatcher/Rule.pm
+SHA1 b5531e71d633b860f1dfb2a2b21e68a457c919ec lib/Path/Dispatcher/Rule.pm
 SHA1 fe6b2cbf7e8d9e95b47823d0b9d1c1b8ab9aa5f2 lib/Path/Dispatcher/Rule/Always.pm
 SHA1 124073d4e3d4f2251252cdb0cc1032c929e31d22 lib/Path/Dispatcher/Rule/Chain.pm
 SHA1 01fe4ef8af8d3d21fdabbf4a61efbb5aeb25eac7 lib/Path/Dispatcher/Rule/CodeRef.pm
@@ -83,7 +83,7 @@ SHA1 fab6e8bc2074e6ecef6e89bb9382bb2606d5cc0f t/902-coderef.t
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.7 (Darwin)
 
-iD8DBQFJsfsGsxfQtHhyRPoRArxwAJ9lKweo08cR9L9MOy+sj/CW1X6V6ACeP1tk
-K0J4Clcy2PO2DNr0qCOG0A8=
-=6/78
+iD8DBQFJ5YNXsxfQtHhyRPoRApO2AJwIi0qWh25mEZHLzcMRPKy4zgz/WwCcDcwP
+Nyk6hno1GxwmYPnmopkIm4Y=
+=VnHy
 -----END PGP SIGNATURE-----
