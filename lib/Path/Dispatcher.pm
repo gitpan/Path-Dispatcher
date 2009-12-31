@@ -2,7 +2,7 @@ package Path::Dispatcher;
 use Any::Moose;
 use 5.008001;
 
-our $VERSION = '0.13';
+our $VERSION = '0.14';
 
 use Path::Dispatcher::Rule;
 use Path::Dispatcher::Dispatch;
@@ -55,9 +55,6 @@ sub dispatch_rule {
 
     my @matches = $args{rule}->match($args{path});
 
-    # Support ::Chain here? Probably not. As ::Chain doesn't make sense unless it is within an ::Under
-#    return if $matches[-1]->rule->isa('Path::Dispatcher::Rule::Chain'); 
-    
     $args{dispatch}->add_matches(@matches);
 
     return @matches;
@@ -70,6 +67,21 @@ sub run {
     my $dispatch = $self->dispatch($path);
 
     return $dispatch->run(@_);
+}
+
+sub complete {
+    my $self = shift;
+    my $path = shift;
+
+    # Automatically box paths
+    unless (blessed($path) && $path->isa('Path::Dispatcher::Path')) {
+        $path = $self->path_class->new(
+            path => $path,
+        );
+    }
+
+    my %seen;
+    return grep { !$seen{$_}++ } map { $_->complete($path) } $self->rules;
 }
 
 # We don't export anything, so if they request something, then try to error
@@ -120,15 +132,16 @@ Path::Dispatcher - flexible and extensible dispatch
 
 =head1 DESCRIPTION
 
-We really like L<Jifty::Dispatcher> and wanted to use it for the command line.
+We really like L<Jifty::Dispatcher> and wanted to use it for L<Prophet>'s
+command line.
 
 The basic operation is that of dispatch. Dispatch takes a path and a list of
 rules, and it returns a list of matches. From there you can "run" the rules
 that matched. These phases are distinct so that, if you need to, you can
 inspect which rules were matched without ever running their codeblocks.
 
-Most consumers would want to use L<Path::Dispatcher::Declarative> which gives
-you some sugar, inspired by L<Jifty::Dispatcher>.
+You want to use L<Path::Dispatcher::Declarative> which gives you some sugar
+inspired by L<Jifty::Dispatcher>.
 
 =head1 ATTRIBUTES
 
@@ -161,6 +174,20 @@ dispatch.
 The args are passed down directly into each rule codeblock. No other args are
 given to the codeblock.
 
+=head2 complete path -> strings
+
+Given a path, consult each rule for possible completions for the path. This is
+intended for tab completion. You can use it with L<Term::ReadLine> like so:
+
+    $term->Attribs->{completion_function} = sub {
+        my ($last_word, $line, $start) = @_;
+        my @matches = map { s/^.* //; $_ } $dispatcher->complete($line);
+        return @matches;
+    };
+
+This API is experimental and subject to change. In particular I think I want to
+return an object that resembles L<Path::Dispatcher::Dispatch>.
+
 =head1 AUTHOR
 
 Shawn M Moore, C<< <sartak at bestpractical.com> >>
@@ -184,6 +211,8 @@ L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Path-Dispatcher>.
 =item L<Mojolicious::Dispatcher>
 
 =item L<Path::Router>
+
+=item L<http://github.com/bestpractical/path-dispatcher-debugger> - Not quite ready for release
 
 =back
 

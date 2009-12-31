@@ -33,8 +33,31 @@ sub match {
     # an ::Always (one that will always trigger next_rule if it's block is ran)
     #
     return unless my @matches = grep { defined } map { $_->match($new_path) } $self->rules;
-    pop @matches while @matches && $matches[-1]->rule->isa('Path::Dispatcher::Rule::Chain'); 
+    pop @matches while @matches && $matches[-1]->rule->isa('Path::Dispatcher::Rule::Chain');
     return @matches;
+}
+
+sub complete {
+    my $self = shift;
+    my $path = shift;
+
+    my $predicate = $self->predicate;
+
+    my $prefix_match = $predicate->match($path)
+        or return $predicate->complete($path);
+
+    my $new_path = $path->clone_path($prefix_match->leftover);
+
+    my $prefix = substr($path->path, 0, length($path->path) - length($new_path->path));
+
+    my @completions = map { $_->complete($new_path) } $self->rules;
+
+    if ($predicate->can('untokenize')) {
+        return map { $predicate->untokenize($prefix, $_) } @completions;
+    }
+    else {
+        return map { "$prefix$_" } @completions;
+    }
 }
 
 sub readable_attributes { shift->predicate->readable_attributes }

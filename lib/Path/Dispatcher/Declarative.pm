@@ -58,6 +58,7 @@ sub build_sugar {
         redispatch_to => sub { $builder->redispatch_to(@_) },
         next_rule     => sub { $builder->next_rule(@_) },
         last_rule     => sub { $builder->last_rule(@_) },
+        complete      => sub { $builder->complete(@_) },
 
         then  => sub (&) { $builder->then(@_) },
         chain => sub (&) { $builder->chain(@_) },
@@ -100,7 +101,7 @@ Path::Dispatcher::Declarative - sugary dispatcher
     use Path::Dispatcher::Declarative -base;
 
     on score => sub { show_score() };
-    
+
     on ['wield', qr/^\w+$/] => sub { wield_weapon($2) };
 
     rewrite qr/^inv/ => "display inventory";

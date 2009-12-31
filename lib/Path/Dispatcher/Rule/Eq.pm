@@ -12,12 +12,26 @@ sub _match {
     my $self = shift;
     my $path = shift;
 
-    return $path->path eq $self->string unless $self->prefix;
+    return $path->path eq $self->string;
+}
+
+sub _prefix_match {
+    my $self = shift;
+    my $path = shift;
 
     my $truncated = substr($path->path, 0, length($self->string));
     return 0 unless $truncated eq $self->string;
 
     return (1, substr($path->path, length($self->string)));
+}
+
+sub complete {
+    my $self = shift;
+    my $path = shift->path;
+    my $completed = $self->string;
+
+    return unless substr($completed, 0, length($path)) eq $path;
+    return $completed;
 }
 
 sub readable_attributes { q{"} . shift->string . q{"} }
