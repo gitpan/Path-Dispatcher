@@ -1,4 +1,4 @@
-package Path::Dispatcher::Rule::Intersection;
+package Path::Dispatcher::Rule::Alternation;
 use Any::Moose;
 extends 'Path::Dispatcher::Rule';
 
@@ -12,10 +12,16 @@ sub _match {
     return 0 if @rules == 0;
 
     for my $rule (@rules) {
-        return 0 unless $rule->match($path);
+        return 1 if $rule->match($path);
     }
 
-    return 1;
+    return 0;
+}
+
+sub complete {
+    my $self = shift;
+
+    return map { $_->complete(@_) } $self->rules;
 }
 
 __PACKAGE__->meta->make_immutable;
@@ -27,7 +33,7 @@ __END__
 
 =head1 NAME
 
-Path::Dispatcher::Rule::Intersection - all rules must match
+Path::Dispatcher::Rule::Alternation - any rule must match
 
 =head1 SYNOPSIS
 

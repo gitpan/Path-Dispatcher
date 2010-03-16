@@ -2,7 +2,7 @@ package Path::Dispatcher;
 use Any::Moose;
 use 5.008001;
 
-our $VERSION = '0.14';
+our $VERSION = '0.15';
 
 use Path::Dispatcher::Rule;
 use Path::Dispatcher::Dispatch;
@@ -27,14 +27,7 @@ has name => (
 
 sub dispatch {
     my $self = shift;
-    my $path = shift;
-
-    # Automatically box paths
-    unless (blessed($path) && $path->isa('Path::Dispatcher::Path')) {
-        $path = $self->path_class->new(
-            path => $path,
-        );
-    }
+    my $path = $self->_autobox_path(shift);
 
     my $dispatch = $self->dispatch_class->new;
 
@@ -71,17 +64,23 @@ sub run {
 
 sub complete {
     my $self = shift;
+    my $path = $self->_autobox_path(shift);
+
+    my %seen;
+    return grep { !$seen{$_}++ } map { $_->complete($path) } $self->rules;
+}
+
+sub _autobox_path {
+    my $self = shift;
     my $path = shift;
 
-    # Automatically box paths
     unless (blessed($path) && $path->isa('Path::Dispatcher::Path')) {
         $path = $self->path_class->new(
             path => $path,
         );
     }
 
-    my %seen;
-    return grep { !$seen{$_}++ } map { $_->complete($path) } $self->rules;
+    return $path;
 }
 
 # We don't export anything, so if they request something, then try to error
@@ -114,7 +113,7 @@ Path::Dispatcher - flexible and extensible dispatch
     $dispatcher->add_rule(
         Path::Dispatcher::Rule::Regex->new(
             regex => qr{^/(foo)/},
-            block => sub { warn $1; }, # foo
+            block => sub { warn $1; },
         )
     );
 
@@ -218,7 +217,7 @@ L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Path-Dispatcher>.
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2008-2009 Best Practical Solutions.
+Copyright 2008-2010 Best Practical Solutions.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.

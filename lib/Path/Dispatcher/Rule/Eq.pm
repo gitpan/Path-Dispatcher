@@ -8,11 +8,22 @@ has string => (
     required => 1,
 );
 
+has case_sensitive => (
+    is      => 'rw',
+    isa     => 'Bool',
+    default => 1,
+);
+
 sub _match {
     my $self = shift;
     my $path = shift;
 
-    return $path->path eq $self->string;
+    if ($self->case_sensitive) {
+        return $path->path eq $self->string;
+    }
+    else {
+        return lc($path->path) eq lc($self->string);
+    }
 }
 
 sub _prefix_match {
@@ -20,7 +31,13 @@ sub _prefix_match {
     my $path = shift;
 
     my $truncated = substr($path->path, 0, length($self->string));
-    return 0 unless $truncated eq $self->string;
+
+    if ($self->case_sensitive) {
+        return 0 unless $truncated eq $self->string;
+    }
+    else {
+        return 0 unless lc($truncated) eq lc($self->string);
+    }
 
     return (1, substr($path->path, length($self->string)));
 }
@@ -30,7 +47,18 @@ sub complete {
     my $path = shift->path;
     my $completed = $self->string;
 
-    return unless substr($completed, 0, length($path)) eq $path;
+    # by convention, complete does include the path itself if it
+    # is a complete match
+    return if length($path) >= length($completed);
+
+    my $partial = substr($completed, 0, length($path));
+    if ($self->case_sensitive) {
+        return unless $partial eq $path;
+    }
+    else {
+        return unless lc($partial) eq lc($path);
+    }
+
     return $completed;
 }
 
@@ -51,7 +79,7 @@ Path::Dispatcher::Rule::Eq - predicate is a string equality
 
     my $rule = Path::Dispatcher::Rule::Eq->new(
         string => 'comment',
-        block  => sub { display_comment($2) },
+        block  => sub { display_comment($1) },
     );
 
 =head1 DESCRIPTION
