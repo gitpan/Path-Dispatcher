@@ -3,7 +3,7 @@ use Any::Moose;
 extends 'Path::Dispatcher::Rule';
 
 has matcher => (
-    is       => 'rw',
+    is       => 'ro',
     isa      => 'CodeRef',
     required => 1,
 );
@@ -14,15 +14,6 @@ sub _match {
 
     local $_ = $path;
     return $self->matcher->($path);
-}
-
-sub readable_attributes {
-    return if $ENV{'PATH_DISPATCHER_TRACE'} < 10;
-
-    my $self = shift;
-
-    require B::Deparse;
-    return B::Deparse->new->coderef2text($self->matcher);
 }
 
 __PACKAGE__->meta->make_immutable;

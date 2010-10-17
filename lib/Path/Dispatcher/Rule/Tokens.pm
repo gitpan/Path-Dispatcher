@@ -3,20 +3,20 @@ use Any::Moose;
 extends 'Path::Dispatcher::Rule';
 
 has tokens => (
-    is         => 'rw',
+    is         => 'ro',
     isa        => 'ArrayRef',
     auto_deref => 1,
     required   => 1,
 );
 
 has delimiter => (
-    is      => 'rw',
+    is      => 'ro',
     isa     => 'Str',
     default => ' ',
 );
 
 has case_sensitive => (
-    is      => 'rw',
+    is      => 'ro',
     isa     => 'Bool',
     default => 1,
 );
@@ -53,7 +53,13 @@ sub _match {
     return if @$got && !$self->prefix; # had tokens left over
 
     my $leftover = $self->untokenize(@$got);
-    return $matched, $leftover;
+
+    return if !$matched;
+
+    return {
+        positional_captures => $matched,
+        leftover            => $leftover,
+    };
 }
 
 sub complete {
@@ -132,52 +138,6 @@ sub untokenize {
            @tokens;
 }
 
-sub readable_attributes {
-    my $self = shift;
-
-    my $deserialize;
-    $deserialize = sub {
-        my $ret = '';
-        for (my $i = 0; $i < @_; ++$i) {
-            local $_ = $_[$i];
-
-            if (ref($_) eq 'ARRAY') {
-                $ret .= $deserialize->(@$_);
-            }
-            else {
-                $ret .= $_;
-            }
-
-            $ret .= ',' if $i + 1 < @_;
-        }
-
-        return "[" . $ret . "]";
-    };
-
-    return $deserialize->($self->tokens);
-}
-
-sub trace {
-    my $self = shift;
-    my %args = @_;
-
-    $self->SUPER::trace(@_);
-
-    return if $ENV{'PATH_DISPATCHER_TRACE'} < 3;
-
-    if ($args{no_tokens}) {
-        warn "... We ran out of tokens when trying to match ($args{on_token}).\n";
-    }
-    elsif ($args{no_match}) {
-        my ($got, $expected) = @args{'got_token', 'on_token'};
-        warn "... Did not match ($got) against expected ($expected).\n";
-    }
-    elsif ($args{tokens_left}) {
-        my @tokens = @{ $args{tokens_left} };
-        warn "... We ran out of path tokens, expecting (@tokens).\n";
-    }
-};
-
 __PACKAGE__->meta->make_immutable;
 no Any::Moose;
 
@@ -194,7 +154,7 @@ Path::Dispatcher::Rule::Tokens - predicate is a list of tokens
     my $rule = Path::Dispatcher::Rule::Tokens->new(
         tokens    => [ "comment", "show", qr/^\d+$/ ],
         delimiter => '/',
-        block     => sub { display_comment($3) },
+        block     => sub { display_comment(shift->pos(3)) },
     );
 
     $rule->match("/comment/show/25");
@@ -216,9 +176,9 @@ first matches "ticket". Then, the next token must be "show" or "display". The
 final token must be a number or a pound sign followed by three word characters.
 
 The results are the tokens in the original string, as they were matched. If you
-have three tokens, then C<$1> will be the string's first token, C<$2> its
-second, and C<$3> its third. So matching "ticket display #AAA" would have
-"ticket" in C<$1>, "display" in C<$2>, and "#AAA" in C<$3>.
+have three tokens, then C<< match->pos(1) >> will be the string's first token
+("ticket"), C<< match->pos(2) >> its second ("display"), and C<< match->pos(3)
+>> its third ("#AAA").
 
 Capture groups inside a regex token are completely ignored.
 

@@ -3,7 +3,7 @@ use Any::Moose;
 extends 'Path::Dispatcher::Rule';
 
 has dispatcher => (
-    is       => 'rw',
+    is       => 'ro',
     isa      => 'Path::Dispatcher',
     required => 1,
     handles  => ['rules', 'complete'],
@@ -16,8 +16,6 @@ sub match {
     my $dispatch = $self->dispatcher->dispatch($path);
     return $dispatch->matches;
 }
-
-sub readable_attributes { shift->dispatcher->name }
 
 __PACKAGE__->meta->make_immutable;
 no Any::Moose;

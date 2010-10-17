@@ -1,14 +1,34 @@
 Revision history for Path-Dispatcher
 
-0.15 Tue Mar 16 09:40:40 2009
+0.16 Sun Oct 17 2010
+        ** BACKWARDS INCOMPATIBLE CHANGE: Pass the match object into rule
+        **    blocks rather than assigning $1, $2, $3. Use ->pos(1), (2), (3),
+        **    etc. instead. This cleans up the code a lot and makes
+        **    Path-Dispatcher more flexible.
+
+        Add support for named captures
+
+        Make all attributes read-only. If you need something to be read-write,
+            I am open to such a change. Just let me know!
+
+        Make _dispatcher_rule private
+
+        Remove trace/readable_attribute/name support. This wants to be
+            implemented in a different, better, more comprehensive way.
+
+        Add documentation for shell tab completion
+
+        Plenty other updated documentation
+
+0.15 Tue Mar 16 09:40:40 2010
         ** Factored Path-Dispatcher-Declarative into its own distribution
-        ** Be sure to update your dependency information!
+        ** Be sure to update your dependency lists!
 
         Implement ->complete for Rule::Dispatch
 
         Add Path::Dispatcher::Rule::Alternation
 
-        Implement case insensitivity fory Rule::Eq
+        Implement case insensitivity for Rule::Eq
 
         Add Path::Dispatcher::Rule::Sequence - like Rule::Tokens but
             better!

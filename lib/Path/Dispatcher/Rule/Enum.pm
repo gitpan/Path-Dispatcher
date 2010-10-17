@@ -3,13 +3,13 @@ use Any::Moose;
 extends 'Path::Dispatcher::Rule';
 
 has enum => (
-    is       => 'rw',
+    is       => 'ro',
     isa      => 'ArrayRef[Str]',
     required => 1,
 );
 
 has case_sensitive => (
-    is      => 'rw',
+    is      => 'ro',
     isa     => 'Bool',
     default => 1,
 );
@@ -20,14 +20,16 @@ sub _match {
 
     if ($self->case_sensitive) {
         for my $value (@{ $self->enum }) {
-            return 1 if $path->path eq $value;
+            return {} if $path->path eq $value;
         }
     }
     else {
         for my $value (@{ $self->enum }) {
-            return 1 if lc($path->path) eq lc($value);
+            return {} if lc($path->path) eq lc($value);
         }
     }
+
+    return;
 }
 
 sub _prefix_match {
@@ -38,16 +40,24 @@ sub _prefix_match {
 
     if ($self->case_sensitive) {
         for my $value (@{ $self->enum }) {
-            return (1, substr($path->path, length($self->string)))
-                if $truncated eq $value;
+            next unless $truncated eq $value;
+
+            return {
+                leftover => substr($path->path, length($self->string)),
+            };
         }
     }
     else {
         for my $value (@{ $self->enum }) {
-            return (1, substr($path->path, length($self->string)))
-                if lc($truncated) eq lc($value);
+            next unless lc($truncated) eq lc($value);
+
+            return {
+                leftover => substr($path->path, length($self->string)),
+            };
         }
     }
+
+    return;
 }
 
 sub complete {
@@ -75,8 +85,6 @@ sub complete {
     return @completions;
 }
 
-sub readable_attributes { q{"} . shift->string . q{"} }
-
 __PACKAGE__->meta->make_immutable;
 no Any::Moose;
 
@@ -92,7 +100,7 @@ Path::Dispatcher::Rule::Enum - one of a list of strings must match
 
     my $rule = Path::Dispatcher::Rule::Enum->new(
         enum  => [qw(perl ruby python php)],
-        block => sub { warn "$1 rules!" },
+        block => sub { warn "I love " . shift->pos(1) },
     );
 
 =head1 DESCRIPTION

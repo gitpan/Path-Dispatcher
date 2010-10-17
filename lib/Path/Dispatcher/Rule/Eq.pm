@@ -3,13 +3,13 @@ use Any::Moose;
 extends 'Path::Dispatcher::Rule';
 
 has string => (
-    is       => 'rw',
+    is       => 'ro',
     isa      => 'Str',
     required => 1,
 );
 
 has case_sensitive => (
-    is      => 'rw',
+    is      => 'ro',
     isa     => 'Bool',
     default => 1,
 );
@@ -19,11 +19,13 @@ sub _match {
     my $path = shift;
 
     if ($self->case_sensitive) {
-        return $path->path eq $self->string;
+        return unless $path->path eq $self->string;
     }
     else {
-        return lc($path->path) eq lc($self->string);
+        return unless lc($path->path) eq lc($self->string);
     }
+
+    return {};
 }
 
 sub _prefix_match {
@@ -33,13 +35,15 @@ sub _prefix_match {
     my $truncated = substr($path->path, 0, length($self->string));
 
     if ($self->case_sensitive) {
-        return 0 unless $truncated eq $self->string;
+        return unless $truncated eq $self->string;
     }
     else {
-        return 0 unless lc($truncated) eq lc($self->string);
+        return unless lc($truncated) eq lc($self->string);
     }
 
-    return (1, substr($path->path, length($self->string)));
+    return {
+        leftover => substr($path->path, length($self->string)),
+    };
 }
 
 sub complete {
@@ -62,8 +66,6 @@ sub complete {
     return $completed;
 }
 
-sub readable_attributes { q{"} . shift->string . q{"} }
-
 __PACKAGE__->meta->make_immutable;
 no Any::Moose;
 
@@ -79,7 +81,7 @@ Path::Dispatcher::Rule::Eq - predicate is a string equality
 
     my $rule = Path::Dispatcher::Rule::Eq->new(
         string => 'comment',
-        block  => sub { display_comment($1) },
+        block  => sub { display_comment(shift->pos(1)) },
     );
 
 =head1 DESCRIPTION

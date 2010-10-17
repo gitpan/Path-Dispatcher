@@ -4,7 +4,7 @@ use Any::Moose;
 use Path::Dispatcher::Match;
 
 has _matches => (
-    is        => 'rw',
+    is        => 'ro',
     isa       => 'ArrayRef',
     default   => sub { [] },
 );
@@ -37,10 +37,7 @@ sub run {
         eval {
             local $SIG{__DIE__} = 'DEFAULT';
 
-            $match->rule->trace(running => 1, match => $match)
-                if $ENV{PATH_DISPATCHER_TRACE};
-
-            push @results, scalar $match->run(@args);
+            push @results, $match->run(@args);
 
             die "Path::Dispatcher abort\n";
         };
@@ -74,7 +71,7 @@ Path::Dispatcher::Dispatch - a list of matches
         rules => [
             Path::Dispatcher::Rule::Tokens->new(
                 tokens => [ 'attack', qr/^\w+$/ ],
-                block  => sub { attack($2) },
+                block  => sub { attack(shift->pos(2)) },
             ),
         ],
     );

@@ -2,7 +2,7 @@ package Path::Dispatcher;
 use Any::Moose;
 use 5.008001;
 
-our $VERSION = '0.15';
+our $VERSION = '0.16';
 
 use Path::Dispatcher::Rule;
 use Path::Dispatcher::Dispatch;
@@ -13,18 +13,6 @@ use constant path_class     => 'Path::Dispatcher::Path';
 
 with 'Path::Dispatcher::Role::Rules';
 
-has name => (
-    is      => 'rw',
-    isa     => 'Str',
-    default => do {
-        my $i = 0;
-        sub {
-            my $self = shift;
-            join '-', blessed($self), ++$i;
-        },
-    },
-);
-
 sub dispatch {
     my $self = shift;
     my $path = $self->_autobox_path(shift);
@@ -32,7 +20,7 @@ sub dispatch {
     my $dispatch = $self->dispatch_class->new;
 
     for my $rule ($self->rules) {
-        $self->dispatch_rule(
+        $self->_dispatch_rule(
             rule     => $rule,
             dispatch => $dispatch,
             path     => $path,
@@ -42,7 +30,7 @@ sub dispatch {
     return $dispatch;
 }
 
-sub dispatch_rule {
+sub _dispatch_rule {
     my $self = shift;
     my %args = @_;
 
@@ -83,17 +71,6 @@ sub _autobox_path {
     return $path;
 }
 
-# We don't export anything, so if they request something, then try to error
-# helpfully
-sub import {
-    my $self    = shift;
-    my $package = caller;
-
-    if (@_) {
-        Carp::croak "'use Path::Dispatcher (@_)' called by $package. Did you mean to use Path::Dispatcher::Declarative?";
-    }
-}
-
 __PACKAGE__->meta->make_immutable;
 no Any::Moose;
 
@@ -113,7 +90,7 @@ Path::Dispatcher - flexible and extensible dispatch
     $dispatcher->add_rule(
         Path::Dispatcher::Rule::Regex->new(
             regex => qr{^/(foo)/},
-            block => sub { warn $1; },
+            block => sub { warn shift->pos(1); },
         )
     );
 
@@ -121,7 +98,7 @@ Path::Dispatcher - flexible and extensible dispatch
         Path::Dispatcher::Rule::Tokens->new(
             tokens    => ['ticket', 'delete', qr/^\d+$/],
             delimiter => '/',
-            block     => sub { delete_ticket($3) },
+            block     => sub { delete_ticket(shift->pos(3)) },
         )
     );
 
@@ -147,11 +124,6 @@ inspired by L<Jifty::Dispatcher>.
 =head2 rules
 
 A list of L<Path::Dispatcher::Rule> objects.
-
-=head2 name
-
-A human-readable name; this will be used in the debugging hooks. In
-L<Path::Dispatcher::Declarative>, this is the package name of the dispatcher.
 
 =head1 METHODS
 
@@ -191,15 +163,13 @@ return an object that resembles L<Path::Dispatcher::Dispatch>.
 
 Shawn M Moore, C<< <sartak at bestpractical.com> >>
 
-=head1 BUGS
-
-Please report any bugs or feature requests to
-C<bug-path-dispatcher at rt.cpan.org>, or through the web interface at
-L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Path-Dispatcher>.
-
 =head1 SEE ALSO
 
 =over 4
+
+=item L<http://sartak.org/talks/yapc-na-2010/path-dispatcher/>
+
+=item L<http://sartak.org/talks/yapc-asia-2010/evolution-of-path-dispatcher/>
 
 =item L<Jifty::Dispatcher>
 

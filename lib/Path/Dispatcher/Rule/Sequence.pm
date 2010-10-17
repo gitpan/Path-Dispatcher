@@ -5,7 +5,7 @@ extends 'Path::Dispatcher::Rule';
 with 'Path::Dispatcher::Role::Rules';
 
 has delimiter => (
-    is      => 'rw',
+    is      => 'ro',
     isa     => 'Str',
     default => ' ',
 );
@@ -42,7 +42,10 @@ sub _match {
     return if @$tokens && !$self->prefix; # had tokens left over
 
     my $leftover = $self->untokenize(@$tokens);
-    return $matched, $leftover;
+    return {
+        leftover            => $self->untokenize(@$tokens),
+        positional_captures => $matched,
+    };
 }
 
 sub complete {

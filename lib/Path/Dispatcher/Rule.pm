@@ -6,63 +6,41 @@ use Path::Dispatcher::Match;
 use constant match_class => "Path::Dispatcher::Match";
 
 has block => (
-    is        => 'rw',
+    is        => 'ro',
     isa       => 'CodeRef',
     predicate => 'has_block',
 );
 
 has prefix => (
-    is      => 'rw',
+    is      => 'ro',
     isa     => 'Bool',
     default => 0,
-);
-
-has name => (
-    is        => 'rw',
-    isa       => 'Str',
-    predicate => 'has_name',
 );
 
 sub match {
     my $self = shift;
     my $path = shift;
 
-    my ($result, $leftover);
+    my $result;
 
     if ($self->prefix) {
-        ($result, $leftover) = $self->_prefix_match($path);
+        $result = $self->_prefix_match($path);
     }
     else {
-        ($result, $leftover) = $self->_match($path);
+        $result = $self->_match($path);
     }
 
-    if (!$result) {
-        $self->trace(leftover => $leftover, match => undef, path => $path)
-            if $ENV{'PATH_DISPATCHER_TRACE'};
-        return;
-    }
+    return if !$result;
 
-    $leftover = '' if !defined($leftover);
-
-    # make sure that the returned values are PLAIN STRINGS
-    # later we will stick them into a regular expression to populate $1 etc
-    # which will blow up later!
-
-    if (ref($result) eq 'ARRAY') {
-        for (@$result) {
-            die "Invalid result '$_', results must be plain strings"
-                if ref($_);
-        }
+    if (ref($result) ne 'HASH') {
+        die "Results returned from _match must be a hashref";
     }
 
     my $match = $self->match_class->new(
-        path     => $path,
-        rule     => $self,
-        result   => $result,
-        leftover => $leftover,
+        path => $path,
+        rule => $self,
+        %$result,
     );
-
-    $self->trace(match => $match) if $ENV{'PATH_DISPATCHER_TRACE'};
 
     return $match;
 }
@@ -82,57 +60,6 @@ sub run {
     die "No codeblock to run" if !$self->has_block;
 
     $self->block->(@_);
-}
-
-sub readable_attributes { }
-
-sub trace {
-    my $self  = shift;
-    my %args  = @_;
-
-    my $level = $ENV{'PATH_DISPATCHER_TRACE'};
-
-    return if exists($args{level})
-           && $level < $args{level};
-
-    my $match = $args{match};
-    my $path  = $match ? $match->path : $args{path};
-
-    # name
-    my $trace = '';
-    if ($self->has_name) {
-        $trace .= $self->name;
-    }
-    else {
-        $trace .= "$self";
-    }
-
-    # attributes such as tokens or regex
-    if ($level >= 2) {
-        my $attr = $self->readable_attributes;
-        $trace .= " $attr" if defined($attr) && length($attr);
-    }
-
-    # what just happened
-    if ($args{running}) {
-        $trace .= " running codeblock with path ($path)";
-        if ($level >= 10) {
-            require B::Deparse;
-            $trace .= ": " . B::Deparse->new->coderef2text($match->rule->block);
-        }
-    }
-    elsif ($match) {
-        $trace .= " matched against ($path)";
-        $trace .= " with (" . $match->leftover . ") left over"
-            if length($match->leftover);
-    }
-    else {
-        $trace .= " did not match against ($path)";
-    }
-
-    $trace .= ".\n";
-
-    warn $trace;
 }
 
 __PACKAGE__->meta->make_immutable;

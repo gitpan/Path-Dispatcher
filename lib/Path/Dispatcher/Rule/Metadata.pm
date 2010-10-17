@@ -3,13 +3,13 @@ use Any::Moose;
 extends 'Path::Dispatcher::Rule';
 
 has field => (
-    is       => 'rw',
+    is       => 'ro',
     isa      => 'Str',
     required => 1,
 );
 
 has matcher => (
-    is       => 'rw',
+    is       => 'ro',
     isa      => 'Path::Dispatcher::Rule',
     required => 1,
 );
@@ -21,16 +21,11 @@ sub _match {
 
     # wow, offensive.. but powerful
     my $metadata_path = $path->clone_path($got);
-    return 0 unless $self->matcher->match($metadata_path);
+    return unless $self->matcher->match($metadata_path);
 
-    return 1, $path->path;
-}
-
-sub readable_attributes {
-    my $self = shift;
-    return sprintf "{ '%s': %s }",
-        $self->field,
-        $self->matcher->readable_attributes;
+    return {
+        leftover => $path->path,
+    };
 }
 
 __PACKAGE__->meta->make_immutable;

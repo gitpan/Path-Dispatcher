@@ -11,7 +11,7 @@ subtype 'Path::Dispatcher::PrefixRule'
      => message { "This rule ($_) does not match just prefixes!" };
 
 has predicate => (
-    is  => 'rw',
+    is  => 'ro',
     isa => 'Path::Dispatcher::PrefixRule',
 );
 
@@ -60,8 +60,6 @@ sub complete {
     }
 }
 
-sub readable_attributes { shift->predicate->readable_attributes }
-
 __PACKAGE__->meta->make_immutable;
 no Any::Moose;
 
@@ -87,7 +85,7 @@ Path::Dispatcher::Rule::Under - rules under a predicate
 
     my $delete = Path::Dispatcher::Rule::Tokens->new(
         tokens => [ 'delete', qr/^\d+$/ ],
-        block  => sub { delete_ticket($2) },
+        block  => sub { delete_ticket(shift->pos(2)) },
     );
 
     my $rule = Path::Dispatcher::Rule::Under->new(
