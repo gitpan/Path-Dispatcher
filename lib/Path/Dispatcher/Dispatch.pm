@@ -1,5 +1,6 @@
 package Path::Dispatcher::Dispatch;
 use Any::Moose;
+use Try::Tiny;
 
 use Path::Dispatcher::Match;
 
@@ -34,20 +35,23 @@ sub run {
     my @results;
 
     while (my $match = shift @matches) {
-        eval {
+        my $exception;
+
+        try {
             local $SIG{__DIE__} = 'DEFAULT';
 
             push @results, $match->run(@args);
 
             die "Path::Dispatcher abort\n";
+        }
+        catch {
+            $exception = $_;
         };
 
-        if ($@) {
-            last if $@ =~ /^Path::Dispatcher abort\n/;
-            next if $@ =~ /^Path::Dispatcher next rule\n/;
+        last if $exception =~ /^Path::Dispatcher abort\n/;
+        next if $exception =~ /^Path::Dispatcher next rule\n/;
 
-            die $@;
-        }
+        die $exception;
     }
 
     return @results if wantarray;

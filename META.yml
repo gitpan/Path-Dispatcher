@@ -20,8 +20,9 @@ no_index:
     - t
 requires:
   Any::Moose: 0
+  Try::Tiny: 0
   perl: 5.8.1
 resources:
   license: http://dev.perl.org/licenses/
   repository: http://github.com/bestpractical/path-dispatcher
-version: 0.16
+version: 1.00
