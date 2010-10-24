@@ -56,6 +56,7 @@ t/024-sequence.t
 t/025-sequence-custom-rule.t
 t/026-named-captures.t
 t/030-exceptions.t
+t/031-structured-match.t
 t/100-match-object.t
 t/901-return-values.t
 t/902-coderef.t

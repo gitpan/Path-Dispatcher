@@ -1,7 +1,12 @@
 #!/usr/bin/env perl
 use strict;
 use warnings;
-use Test::More tests => 4;
+use Test::More;
+BEGIN {
+    if ($] <= 5.010001) {
+        plan skip_all => 'This test requires Perl 5.10.1';
+    }
+}
 use Path::Dispatcher;
 
 my $dispatcher = Path::Dispatcher->new(
@@ -20,4 +25,6 @@ is_deeply($match->named_captures, { second => "named" });
 $match = $dispatcher->run("positional firstnamed secondnamed");
 is_deeply($match->positional_captures, ["positional", "firstnamed", "secondnamed"]);
 is_deeply($match->named_captures, { second => "firstnamed", third => "secondnamed" });
+
+done_testing;
 

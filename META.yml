@@ -4,7 +4,8 @@ author:
   - 'Shawn M Moore, C<< <sartak at bestpractical.com> >>'
 build_requires:
   ExtUtils::MakeMaker: 6.42
-  Test::Exception: 0
+  Test::Exception: 0.27
+  Test::More: 0.88
 configure_requires:
   ExtUtils::MakeMaker: 6.42
 distribution_type: module
@@ -19,10 +20,10 @@ no_index:
     - inc
     - t
 requires:
-  Any::Moose: 0
-  Try::Tiny: 0
+  Any::Moose: 0.12
+  Try::Tiny: 0.02
   perl: 5.8.1
 resources:
   license: http://dev.perl.org/licenses/
   repository: http://github.com/bestpractical/path-dispatcher
-version: 1.00
+version: 1.01
