@@ -26,4 +26,4 @@ requires:
 resources:
   license: http://dev.perl.org/licenses/
   repository: http://github.com/bestpractical/path-dispatcher
-version: 1.01
+version: 1.02

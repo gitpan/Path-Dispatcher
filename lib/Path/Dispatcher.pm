@@ -2,7 +2,7 @@ package Path::Dispatcher;
 use Any::Moose;
 use 5.008001;
 
-our $VERSION = '1.01';
+our $VERSION = '1.02';
 
 use Path::Dispatcher::Rule;
 use Path::Dispatcher::Dispatch;
@@ -116,7 +116,42 @@ rules, and it returns a list of matches. From there you can "run" the rules
 that matched. These phases are distinct so that, if you need to, you can
 inspect which rules were matched without ever running their codeblocks.
 
-You want to use L<Path::Dispatcher::Declarative> which gives you some sugar
+Tab completion support is also available (see in particular
+L<Path::Dispatcher::Cookbook/How can I configure tab completion for shells?>)
+for the dispatchers you write.
+
+Each rule may take a variety of different forms (which I think justifies the
+"flexible" adjective in the module's description). Some of the rule types are:
+
+=over 4
+
+=item L<Path::Dispatcher::Rule::Regex>
+
+Matches the path against a regular expression.
+
+=item L<Path::Dispatcher::Rule::Enum>
+
+Match one of a set of strings.
+
+=item L<Path::Dispatcher::Rule::CodeRef>
+
+Execute a coderef to determine whether the path matches the rule. So you can
+do anything you like. Though writing a domain-specific rule (see below) will
+enable better introspection and encoding intent.
+
+=item L<Path::Dispatcher::Rule::Dispatch>
+
+Use another L<Path::Dispatcher> to match the path. This facilitates both
+extending dispatchers (a bit like subclassing) and delegating to plugins.
+
+=back
+
+Since L<Path::Dispatcher> is designed with good object-oriented programming
+practices, you can also write your own domain-specific rule classes (which
+earns it the "extensible" adjective). For example, in L<Prophet>, we have a
+custom rule for matching, and tab completing, record IDs.
+
+You may want to use L<Path::Dispatcher::Declarative> which gives you some sugar
 inspired by L<Jifty::Dispatcher>.
 
 =head1 ATTRIBUTES
@@ -171,15 +206,17 @@ Shawn M Moore, C<< <sartak at bestpractical.com> >>
 
 =item L<http://sartak.org/talks/yapc-asia-2010/evolution-of-path-dispatcher/>
 
+=item L<http://github.com/miyagawa/plack-dispatching-samples>
+
 =item L<Jifty::Dispatcher>
 
 =item L<Catalyst::Dispatcher>
 
-=item L<HTTPx::Dispatcher>
-
 =item L<Mojolicious::Dispatcher>
 
 =item L<Path::Router>
+
+=item L<Router::Simple>
 
 =item L<http://github.com/bestpractical/path-dispatcher-debugger> - Not quite ready for release
 
