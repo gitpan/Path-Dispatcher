@@ -2,7 +2,7 @@ package Path::Dispatcher;
 use Any::Moose;
 use 5.008001;
 
-our $VERSION = '1.02';
+our $VERSION = '1.03';
 
 use Path::Dispatcher::Rule;
 use Path::Dispatcher::Dispatch;
@@ -224,7 +224,7 @@ Shawn M Moore, C<< <sartak at bestpractical.com> >>
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2008-2010 Best Practical Solutions.
+Copyright 2008-2011 Best Practical Solutions.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
