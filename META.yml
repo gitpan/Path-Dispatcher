@@ -4,7 +4,7 @@ author:
   - 'Shawn M Moore, C<< <sartak at bestpractical.com> >>'
 build_requires:
   ExtUtils::MakeMaker: 6.42
-  Test::Exception: 0.27
+  Test::Fatal: 0
   Test::More: 0.88
 configure_requires:
   ExtUtils::MakeMaker: 6.42
@@ -30,4 +30,4 @@ resources:
     type: git
     url: git://github.com/sartak/path-dispatcher.git
     web: http://github.com/sartak/path-dispatcher/tree
-version: 1.03
+version: 1.04
